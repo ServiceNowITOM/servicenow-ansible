@@ -15,9 +15,9 @@ DOCUMENTATION = r'''
         - inventory_cache
     options:
         plugin:
-            description: The name of the ServiceNow Inventory Plugin, this should always be 'now'.
+            description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
             required: True
-            choices: ['now']
+            choices: ['servicenow.servicenow.now']
         instance:
             description: The ServiceNow instance URI. The URI should be the fully-qualified domain name, e.g. 'your-instance.servicenow.com'.
             type: string
@@ -69,7 +69,7 @@ keyed_groups:
     prefix: ''
     separator: ''
 
-plugin: now
+plugin: servicenow.servicenow.now
 instance: demo.service-now.com
 username: admin
 password: password
@@ -86,7 +86,7 @@ keyed_groups:
   - key: sn_install_status | lower
     prefix: 'status'
 
-plugin: now
+plugin: servicenow.servicenow.now
 instance: demo.service-now.com
 username: admin
 password: password
@@ -113,7 +113,7 @@ import sys
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
-    NAME = 'now'
+    NAME = 'servicenow.servicenow.now'
 
     def invoke(self, verb, path, data):
         auth = requests.auth.HTTPBasicAuth(self.get_option('username'),

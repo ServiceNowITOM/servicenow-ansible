@@ -1,4 +1,4 @@
-plugin: now
+plugin: servicenow.servicenow.now
 instance: demo.service-now.com
 username: admin
 password: password

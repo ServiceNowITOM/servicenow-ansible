@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *************************************************************************************
+     * MID Server Configuration
+     * 
+     * This file contains a sample MID Server configuration.  You must edit this file to 
+     * change the settings as appropriate for each of your MID Server installations.
+     *
+     * See http://docs.servicenow.com/?context=MID_Server_Configuration for 
+     * complete documentation of the parameters that may be included in this file.
+     ************************************************************************************* -->
+
+<parameters>
+
+  <!-- *************************************************************************************
+       * REQUIRED Parameters
+       * 
+       * This section contains parameters that MUST be included in EVERY Mid Server 
+       * configuration.
+       ************************************************************************************* -->
+
+       <!-- Tells the MID server where to contact its associated Service-now instance.  Edit 
+            this value to provide the URL of your organization's Service-now instance. -->
+       <parameter name="url" value="https://{{ now_instance }}"/>
+
+	   <!-- If your Service-now instance has authentication enabled (the normal case), set 
+            these parameters to define the user name and password the MID server will use 
+            to log into the instance.  -->
+       
+       <parameter name="mid.instance.username" value="{{ now_instance_username }}" />
+       <parameter name="mid.instance.password" value="{{ now_instance_password }}" encrypt="true"/>
+	
+       <!-- Defines the name by which your MID server is known on the Service-now instance.  
+            Edit this value to provide the name you want, or leave it blank and the MID server
+            will make up a name. -->
+       <parameter name="name" value="{{ ansible_hostname }}"/>
+
+  <!-- *************************************************************************************
+       * COMMON OPTIONAL Parameters
+       * 
+       * This contains selected parameters that MAY be included in ANY Mid Server 
+       * configuration.  These parameters were chosen because they are commonly needed.  To
+       * include any particular parameter or group of parameters, uncomment the parameter(s)
+       * you want.
+       ************************************************************************************* -->
+  
+       <!-- Controls the number of execution threads (simultaneous work) that may be used by 
+            probes. -->
+       <parameter name="threads.max" value="25"/>
+    
+       <!-- Set or change this parameter to let the MID server know what format the instance 
+            uses for date/times.  See the wiki or 
+            http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html 
+            for details about how to set this value. -->
+       <!--
+       <parameter name="instance.date.format" value="yyyy-MM-dd HH:mm:ss"/>
+       -->
+    
+       <!-- This parameter places an upper bound on how large the queue is allowed to get. -->
+       <!--
+       <parameter name="glide.mid.max.sender.queue.size" value="0.5 gigabytes"/>
+       -->
+
+       <!-- These parameters specify a proxy server the MID server will use BOTH for contacting
+            your Service-now instance AND for downloading upgrades. -->
+       <!--
+       <parameter name="mid.proxy.use_proxy" value="true"/>
+       <parameter name="mid.proxy.host" value="YOUR_PROXY_HOST"/>
+       <parameter name="mid.proxy.port" value="YOUR_PROXY_PORT"/>
+       -->
+
+       <!-- Set these parameters ONLY if your proxy requires a user name and password. -->
+       <!--
+       <parameter name="mid.proxy.username" value="YOUR_PROXY_USER_NAME"/>
+       <parameter name="mid.proxy.password" value="YOUR_PROXY_PASSWORD" encrypt="true"/>
+       -->
+  
+       <!-- These parameters specify a proxy server the MID server will use ONLY for 
+            downloading upgrades. -->
+       <!--
+       <parameter name="glide.mid.autoupgrade.proxy_host"     value="YOUR_UPGRADE_PROXY_HOST"     />
+       <parameter name="glide.mid.autoupgrade.proxy_port"     value="YOUR_UPGRADE_PROXY_PORT"     />
+       <parameter name="glide.mid.autoupgrade.proxy_user"     value="YOUR_UPGRADE_PROXY_USER"     />
+       <parameter name="glide.mid.autoupgrade.proxy_password" value="YOUR_UPGRADE_PROXY_PASSWORD" />
+       -->
+
+
+  <!-- *************************************************************************************
+       * LESS COMMON OPTIONAL Parameters
+       * 
+       * There are other parameters available for more specialized needs.  These optional 
+       * parameters are documented on the Service-now wiki at the URL below:
+       *
+       *   http://docs.servicenow.com/?context=MID_Server_Configuration
+       ************************************************************************************* -->
+
+	
+	
+	
+	  <!-- *************************************************************************************
+       * REQUIRED Parameters that are AUTOMATICALLY filled in.
+       * 
+       * This section contains parameters that are required, but will be automatically filled in
+       * after the MID server first made contacts to your Service-now instance.
+       ************************************************************************************* -->
+	       <!-- Records the unique ID of the MID server's record on the Service-now instance.  On 
+            installation of the MID server, this value should be empty.  The MID server
+            will fill in this value after it first contacts your Service-now instance. -->
+       <parameter name="mid_sys_id" value=""/>
+    
+</parameters>

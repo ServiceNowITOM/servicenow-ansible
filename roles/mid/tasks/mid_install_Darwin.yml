@@ -1,0 +1,27 @@
+---
+# Generate ServiceNow instance MID download uri for OSX operating systems
+
+- name: Get ServiceNow build stats
+  uri:
+    url: "https://{{ now_instance }}/stats.do"
+    return_content: yes
+  register: now_instance_stats
+
+- name: Get ServiceNow build facts
+  set_fact: 
+    now_instance_build_date: "{{ now_instance_stats.content | regex_search('Build date: ([^<]{1,})') }}"
+    now_instance_mid_buildstamp: "{{ now_instance_stats.content | regex_search('MID buildstamp: ([^<]{1,})') }}"
+
+- name: Set ServiceNow build facts
+  set_fact:
+    now_instance_build_date: "{{ now_instance_build_date.split(': ')[1] }}"
+    now_instance_mid_buildstamp: "{{ now_instance_mid_buildstamp.split(': ')[1] }}"
+
+- name: Set ServiceNow build dates
+  set_fact:
+    now_instance_build_1: "{{ now_instance_build_date.split('_')[0].split('-')[2] }}"
+    now_instance_build_2: "{{ now_instance_build_date.split('_')[0].split('-')[0] }}"   
+    now_instance_build_3: "{{ now_instance_build_date.split('_')[0].split('-')[1] }}"
+
+- name: Set ServiceNow install uri
+  set_fact: "now_instance_mid_install_uri={{ now_mid_base_https_uri }}/{{ now_instance_build_1 }}/{{ now_instance_build_2 }}/{{ now_instance_build_3 }}/mid.{{ now_instance_mid_buildstamp }}.osx.{{ ansible_architecture | regex_replace('_', '-') }}.zip"

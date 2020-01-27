@@ -1,0 +1,6 @@
+---
+# tasks file for ansible-role-mid
+
+# Add state flags for present, absent, reset?
+
+- include: mid_install_{{ ansible_system }}.yml

@@ -1,0 +1,76 @@
+---
+- name: Get ServiceNow build stats
+  win_uri:
+    url: "https://{{ now_instance }}/stats.do"
+    return_content: yes
+  register: now_instance_stats
+
+- name: Get ServiceNow build facts
+  set_fact: 
+    now_instance_build_date: "{{ now_instance_stats.content | regex_search('Build date: ([^<]{1,})') }}"
+    now_instance_mid_buildstamp: "{{ now_instance_stats.content | regex_search('MID buildstamp: ([^<]{1,})') }}"
+
+- name: Set ServiceNow build facts
+  set_fact:
+    now_instance_build_date: "{{ now_instance_build_date.split(': ')[1] }}"
+    now_instance_mid_buildstamp: "{{ now_instance_mid_buildstamp.split(': ')[1] }}"
+
+- name: Set ServiceNow build dates
+  set_fact:
+    now_instance_build_1: "{{ now_instance_build_date.split('_')[0].split('-')[2] }}"
+    now_instance_build_2: "{{ now_instance_build_date.split('_')[0].split('-')[0] }}"   
+    now_instance_build_3: "{{ now_instance_build_date.split('_')[0].split('-')[1] }}"
+
+## 'ansible_architecture' on Windows doesn't match the ServiceNow MID install uri format: 'x64-(32|64)''
+- name: Set ServiceNow install uri (32-bit)
+  set_fact: "now_instance_mid_install_uri={{ now_mid_base_https_uri }}/{{ now_instance_build_1 }}/{{ now_instance_build_2 }}/{{ now_instance_build_3 }}/mid.{{ now_instance_mid_buildstamp }}.windows.x86-32.zip"
+  when: ansible_architecture == '32-bit'
+
+# Default to x86-64
+- name: Set ServiceNow install uri (64-bit)
+  set_fact: "now_instance_mid_install_uri={{ now_mid_base_https_uri }}/{{ now_instance_build_1 }}/{{ now_instance_build_2 }}/{{ now_instance_build_3 }}/mid.{{ now_instance_mid_buildstamp }}.windows.x86-64.zip"
+  when: ansible_architecture != '32-bit'
+
+- name: Create MID install path
+  win_file:
+    path: "{{ now_mid_base_path_win }}"
+    state: directory
+
+- name: Download MID install file
+  win_get_url:
+    url: "{{ now_instance_mid_install_uri }}"
+    dest: "{{ now_mid_base_path_win }}/{{ now_instance_mid_install_uri.split('/')[-1] }}"
+    force: no
+
+- name: Unzip MID install file
+  win_unzip:
+    src: "{{ now_mid_base_path_win }}/{{ now_instance_mid_install_uri.split('/')[-1] }}"
+    dest: "{{ now_mid_base_path_win }}"
+    creates: "{{ now_mid_base_path_win }}/agent"
+
+- name: Install MID service
+  raw: "{{ now_mid_base_path_win }}/agent/bin/mid.bat install"
+  register: install_result
+
+# The ServiceNow MID configuration file (config.xml) will always appear changed as the mid.instance.password parameter is
+# encrypted on first run. Perform a cheap detection of first install through win_lineinfile, however, this will impact change 
+# operations such as updating the mid.instance.password.
+
+- name: MID configuration updated
+  win_lineinfile:
+    dest: "{{ now_mid_base_path_win }}/agent/config.xml"
+    regexp: <parameter name="mid.instance.password" value="YOUR_INSTANCE_PASSWORD_HERE" encrypt="true"/>$
+    state: absent
+  notify: Update MID configuration (Windows)
+
+- name: Configure MID service
+  win_service:
+    name: snc_mid
+    start_mode: auto
+    state: started
+
+
+
+
+
+

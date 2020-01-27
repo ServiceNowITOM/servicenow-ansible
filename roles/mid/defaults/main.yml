@@ -1,0 +1,6 @@
+---
+now_instance_mid_name: 
+now_mid_base_https_uri: "https://install.service-now.com/glide/distribution/builds/package/mid"
+now_mid_base_http_uri: "http://install.service-now.com/glide/distribution/builds/package/mid"
+now_mid_base_path_win: "c:/servicenow"
+now_mid_base_path: "/opt/servicenow"

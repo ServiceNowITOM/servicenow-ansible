@@ -1,0 +1,18 @@
+galaxy_info:
+  author: Reuben Stump
+  description: Ansible role to install and configure ServiceNow MID server instances
+  company: ServiceNow
+  license: license MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: EL
+      versions:
+      - all
+    - name: Windows
+      versions:
+      - all
+  galaxy_tags:
+    - servicenow
+    - system
+    - server
+dependencies: []

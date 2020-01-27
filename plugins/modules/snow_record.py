@@ -31,7 +31,7 @@ options:
       - If C(present) is supplied with a C(number) argument, the module will attempt to update the record with the supplied data.
       - If no such record exists, a new one will be created.
       - C(absent) will delete a record.
-      choices: [ present, absent ]
+      choices: [ 'present', 'absent' ]
       required: true
       type: str
     data:

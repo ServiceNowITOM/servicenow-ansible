@@ -1,0 +1,53 @@
+---
+- name: Set ServiceNow install uri
+  set_fact: "now_instance_mid_install_uri={{ now_mid_base_https_uri }}/{{ now_instance_build_1 }}/{{ now_instance_build_2 }}/{{ now_instance_build_3 }}/mid.{{ now_instance_mid_buildstamp }}.linux.{{ ansible_architecture | regex_replace('_', '-') }}.zip"
+
+- name: Create MID install path
+  file:
+    path: "{{ now_mid_base_path }}"
+    state: directory
+
+- name: Download MID install file
+  get_url:
+    url: "{{ now_instance_mid_install_uri }}"
+    dest: "{{ now_mid_base_path }}/{{ now_instance_mid_install_uri.split('/')[-1] }}"
+    force: no
+
+- name: Install unzip
+  package: name=unzip
+
+# Bug fixed in 2.1.1? spaces in file name bombs out, seeing this now on OSX brew install of Ansible, maybe fixed once it hits brew?
+- name: Unzip MID install file
+  unarchive:
+    src: "{{ now_mid_base_path }}/{{ now_instance_mid_install_uri.split('/')[-1] }}"
+    dest: "{{ now_mid_base_path }}"
+    creates: "{{ now_mid_base_path }}/agent"
+    copy: no
+
+# The ServiceNow MID configuration file (config.xml) will always appear changed as the mid.instance.password parameter is
+# encrypted on first run. Perform a cheap detection of first install through lineinfile, however, this will impact change 
+- name: Update MID Configuration
+  template:
+    src: templates/config.xml.j2 
+    dest: "{{ now_mid_base_path }}/agent/config.xml"
+  # lineinfile: 
+  #   dest: "{{ now_mid_base_path }}/agent/config.xml"
+  #   regexp: <parameter name="mid.instance.password" value="YOUR_INSTANCE_PASSWORD_HERE" encrypt="true"/>$
+  #   state: absent
+
+- name: Check if MID service exists`
+  stat:
+    path: /etc/init.d/mid
+  register: p
+
+# TODO detect if server daemon already installed
+- name: Install MID service
+  raw: "{{ now_mid_base_path }}/agent/bin/mid.sh install"
+  register: install_result
+  when: not p.stat.exists
+
+- name: Start and enable mid service
+  service: 
+    name: mid
+    enabled: true
+    state: started

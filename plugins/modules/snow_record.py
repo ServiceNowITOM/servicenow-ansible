@@ -153,7 +153,7 @@ import os
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes, to_native
-from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowClient
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowClient
 
 try:
     # This is being handled by ServiceNowClient

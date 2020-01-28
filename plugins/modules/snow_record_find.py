@@ -122,7 +122,7 @@ record:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowClient
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowClient
 from ansible.module_utils._text import to_native
 
 try:

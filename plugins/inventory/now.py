@@ -168,7 +168,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                                            'http': proxy,
                                            'https': proxy
                                        })
-                if response.status_code != 200:
+                if response.status_code == 400 and self.get_option('enhanced'):
+                    raise AnsibleError("http error (%s): %s. Have you installed the enhanced inventory update set on your instance?" %
+                                       (response.status_code, response.text))
+                elif response.status_code != 200:
                     raise AnsibleError("http error (%s): %s" %
                                        (response.status_code, response.text))
                 results += response.json()['result']

@@ -8,13 +8,13 @@ This collection provides a series of Ansible modules, roles, and plugins for int
 
 ## Installation
 
-To install Azure collection hosted in Galaxy:
+To install ServiceNow collection hosted in Galaxy:
 
 ```bash
 ansible-galaxy collection install servicenow.servicenow
 ```
 
-To upgrade to the latest version of Azure collection:
+To upgrade to the latest version of ServiceNow collection:
 
 ```bash
 ansible-galaxy collection install servicenow.servicenow --force

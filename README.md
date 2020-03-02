@@ -8,13 +8,21 @@ This collection provides a series of Ansible modules, roles, and plugins for int
 
 ## Installation
 
+<<<<<<< HEAD
 To install ServiceNow collection hosted in Galaxy:
+=======
+To install Azure collection hosted in Galaxy:
+>>>>>>> Enhanced Inventory Support (#4)
 
 ```bash
 ansible-galaxy collection install servicenow.servicenow
 ```
 
+<<<<<<< HEAD
 To upgrade to the latest version of ServiceNow collection:
+=======
+To upgrade to the latest version of Azure collection:
+>>>>>>> Enhanced Inventory Support (#4)
 
 ```bash
 ansible-galaxy collection install servicenow.servicenow --force
@@ -88,4 +96,8 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation and make pull requests for anything from typos to new content
 
+<<<<<<< HEAD
 Special thanks to Tim Rightnour (@garbled1) for the original version of ServiceNow modules in Ansible Core.
+=======
+Special thanks to Tim Rightnour (@garbled1) for the original version of ServiceNow modules in Ansible Core.
+>>>>>>> Enhanced Inventory Support (#4)

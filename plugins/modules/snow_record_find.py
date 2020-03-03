@@ -72,6 +72,18 @@ EXAMPLES = '''
       - number
       - opened_at
 
+- name: Search for incident using host instead of instance
+  snow_record_find:
+    username: ansible_test
+    password: my_password
+    host: dev99999.mycustom.domain.com
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+
 - name: Using OAuth, search for incident assigned to group, return specific fields
   snow_record_find:
     username: ansible_test
@@ -215,10 +227,20 @@ def run_module():
         ['client_id', 'client_secret']
     ]
 
+    module_mutually_exclusive = [
+        ['host', 'instance'],
+    ]
+
+    module_required_one_of = [
+        ['host', 'instance'],
+    ]
+
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True,
-        required_together=module_required_together
+        required_together=module_required_together,
+        required_one_of=module_required_one_of,
+        mutually_exclusive=module_mutually_exclusive,
     )
 
     # Connect to ServiceNow
@@ -228,6 +250,7 @@ def run_module():
 
     params = module.params
     instance = params['instance']
+    host = params['host']
     table = params['table']
     query = params['query']
     max_records = params['max_records']
@@ -236,6 +259,7 @@ def run_module():
     result = dict(
         changed=False,
         instance=instance,
+        host=host,
         table=table,
         query=query,
         max_records=max_records,

@@ -32,7 +32,7 @@
        <!-- Defines the name by which your MID server is known on the Service-now instance.  
             Edit this value to provide the name you want, or leave it blank and the MID server
             will make up a name. -->
-       <parameter name="name" value="{{ ansible_hostname }}"/>
+       <parameter name="name" value="{{ now_mid_name }}"/>
 
   <!-- *************************************************************************************
        * COMMON OPTIONAL Parameters
@@ -45,14 +45,14 @@
   
        <!-- Controls the number of execution threads (simultaneous work) that may be used by 
             probes. -->
-       <parameter name="threads.max" value="25"/>
+       <parameter name="threads.max" value="{{ now_mid_threads }}"/>
     
        <!-- Set or change this parameter to let the MID server know what format the instance 
             uses for date/times.  See the wiki or 
             http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html 
             for details about how to set this value. -->
        <!--
-       <parameter name="instance.date.format" value="yyyy-MM-dd HH:mm:ss"/>
+       <parameter name="instance.date.format" value="{{ now_mid_date_format }}"/>
        -->
     
        <!-- This parameter places an upper bound on how large the queue is allowed to get. -->
@@ -63,15 +63,15 @@
        <!-- These parameters specify a proxy server the MID server will use BOTH for contacting
             your Service-now instance AND for downloading upgrades. -->
        <!--
-       <parameter name="mid.proxy.use_proxy" value="true"/>
-       <parameter name="mid.proxy.host" value="YOUR_PROXY_HOST"/>
-       <parameter name="mid.proxy.port" value="YOUR_PROXY_PORT"/>
+       <parameter name="mid.proxy.use_proxy" value="{{ now_mid_proxy }}"/>
+       <parameter name="mid.proxy.host" value="{{ now_mid_proxy_host }}"/>
+       <parameter name="mid.proxy.port" value="{{ now_mid_proxy_port }}"/>
        -->
 
        <!-- Set these parameters ONLY if your proxy requires a user name and password. -->
        <!--
-       <parameter name="mid.proxy.username" value="YOUR_PROXY_USER_NAME"/>
-       <parameter name="mid.proxy.password" value="YOUR_PROXY_PASSWORD" encrypt="true"/>
+       <parameter name="mid.proxy.username" value="{{ now_mid_proxy_username }}"/>
+       <parameter name="mid.proxy.password" value="{{ now_mid_proxy_password }}" encrypt="true"/>
        -->
   
        <!-- These parameters specify a proxy server the MID server will use ONLY for 

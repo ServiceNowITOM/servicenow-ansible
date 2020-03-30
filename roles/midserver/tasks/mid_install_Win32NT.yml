@@ -1,26 +1,4 @@
 ---
-- name: Get ServiceNow build stats
-  win_uri:
-    url: "https://{{ now_instance }}/stats.do"
-    return_content: yes
-  register: now_instance_stats
-
-- name: Get ServiceNow build facts
-  set_fact: 
-    now_instance_build_date: "{{ now_instance_stats.content | regex_search('Build date: ([^<]{1,})') }}"
-    now_instance_mid_buildstamp: "{{ now_instance_stats.content | regex_search('MID buildstamp: ([^<]{1,})') }}"
-
-- name: Set ServiceNow build facts
-  set_fact:
-    now_instance_build_date: "{{ now_instance_build_date.split(': ')[1] }}"
-    now_instance_mid_buildstamp: "{{ now_instance_mid_buildstamp.split(': ')[1] }}"
-
-- name: Set ServiceNow build dates
-  set_fact:
-    now_instance_build_1: "{{ now_instance_build_date.split('_')[0].split('-')[2] }}"
-    now_instance_build_2: "{{ now_instance_build_date.split('_')[0].split('-')[0] }}"   
-    now_instance_build_3: "{{ now_instance_build_date.split('_')[0].split('-')[1] }}"
-
 ## 'ansible_architecture' on Windows doesn't match the ServiceNow MID install uri format: 'x64-(32|64)''
 - name: Set ServiceNow install uri (32-bit)
   set_fact: "now_instance_mid_install_uri={{ now_mid_base_https_uri }}/{{ now_instance_build_1 }}/{{ now_instance_build_2 }}/{{ now_instance_build_3 }}/mid.{{ now_instance_mid_buildstamp }}.windows.x86-32.zip"
@@ -56,6 +34,11 @@
 # encrypted on first run. Perform a cheap detection of first install through win_lineinfile, however, this will impact change 
 # operations such as updating the mid.instance.password.
 
+- name: Update MID Configuration
+  win_template:
+    src: templates/config.xml.j2 
+    dest: "{{ now_mid_base_path_win }}/agent/config.xml"
+
 - name: MID configuration updated
   win_lineinfile:
     dest: "{{ now_mid_base_path_win }}/agent/config.xml"
@@ -68,9 +51,3 @@
     name: snc_mid
     start_mode: auto
     state: started
-
-
-
-
-
-

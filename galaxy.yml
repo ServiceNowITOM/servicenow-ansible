@@ -1,6 +1,6 @@
 namespace: "servicenow"
 name: "servicenow"
-version: "1.0.1"
+version: "1.0.2"
 readme: "README.md"
 authors:
     - "Paul Knight <paul.knight@delaware.gov>"

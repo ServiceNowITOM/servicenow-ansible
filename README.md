@@ -1,3 +1,5 @@
+![CI](https://github.com/ServiceNowITOM/servicenow-ansible/workflows/CI/badge.svg)
+
 # Ansible Collection for ServiceNow
 This collection provides a series of Ansible modules, roles, and plugins for interacting with [ServiceNow](https://servicenow.com)
 

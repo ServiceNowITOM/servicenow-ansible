@@ -50,6 +50,7 @@ options:
       - By default, all fields will be returned.
       type: list
       required: false
+      elements: str
 requirements:
     - python pysnow (pysnow)
 author:
@@ -221,7 +222,7 @@ def run_module():
         query=dict(type='dict', required=True),
         max_records=dict(default=20, type='int', required=False),
         order_by=dict(default='-created_on', type='str', required=False),
-        return_fields=dict(default=None, type='list', required=False)
+        return_fields=dict(default=None, type='list', required=False, elements=str)
     )
     module_required_together = [
         ['client_id', 'client_secret']

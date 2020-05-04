@@ -254,7 +254,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                     ci_rel_type = to_safe_group_name(
                         item['ci_rel_type'].split('__')[0])
                     ci_type = to_safe_group_name(item['ci_type'])
-
                     if ci != '' and ci_rel_type != '' and ci_type != '':
                         child_group = "%s_%s" % (ci, ci_rel_type)
                         self.inventory.add_group(child_group)

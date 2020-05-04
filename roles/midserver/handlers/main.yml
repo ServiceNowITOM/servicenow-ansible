@@ -1,0 +1,17 @@
+---
+- name: Remove ServiceNow MID Server keystore (Windows)
+  win_file:
+    path: "{{ now_mid_base_path_win }}/agent/keystore/agent_keystore.jks"
+    state: absent
+  notify: Restart ServiceNow MID Server (Windows)
+
+- name: Update MID configuration (Windows)
+  win_template:
+    dest: "{{ now_mid_base_path_win }}/agent/config.xml"
+    src: config.xml.j2
+  notify: Restart ServiceNow MID Server (Windows)
+
+- name: Restart ServiceNow MID Server (Windows)
+  win_service:
+    name: snc_mid
+    state: restarted

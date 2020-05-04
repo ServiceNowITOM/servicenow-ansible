@@ -17,52 +17,52 @@ DOCUMENTATION = '''
 ---
 module: snow_record
 short_description: Manage records in ServiceNow
-version_added: "2.5"
 description:
     - Creates, deletes and updates a single record in ServiceNow.
 options:
     table:
-      description: >-
-        Table to query for records.
+      description:
+      - Table to query for records.
       required: false
       default: incident
       type: str
     state:
-      description: >-
-        If C(present) is supplied with a C(number) argument, the module
-        will attempt to update the record with the supplied data.  If no
-        such record exists, a new one will be created.  C(absent) will
-        delete a record.
-      choices: [ present, absent ]
+      description:
+      - If C(present) is supplied with a C(number) argument, the module will attempt to update the record with the supplied data.
+      - If no such record exists, a new one will be created.
+      - C(absent) will delete a record.
+      choices: [ 'present', 'absent' ]
       required: true
       type: str
     data:
-      description: >-
-        Key-value pairs of data to load into the record.  See Examples.
-        Required for C(state:present).
+      description:
+      - key, value pairs of data to load into the record. See Examples.
+      - Required for C(state:present).
       type: dict
     number:
-      description: >-
-        Record number to update.
-        Required for C(state:absent).
+      description:
+      - Record number to update.
+      - Required for C(state:absent).
       required: false
       type: str
     lookup_field:
-      description: >-
-        Changes the field that C(number) uses to find records.
+      description:
+      - Changes the field that C(number) uses to find records.
       required: false
       default: number
       type: str
     attachment:
-      description: >-
-        Attach a file to the record.
+      description:
+      - Attach a file to the record.
       required: false
       type: str
 requirements:
     - python pysnow (pysnow)
 author:
     - Tim Rightnour (@garbled1)
-extends_documentation_fragment: service_now.documentation
+extends_documentation_fragment:
+- servicenow.servicenow.service_now.documentation
+
 '''
 
 EXAMPLES = '''
@@ -99,6 +99,16 @@ EXAMPLES = '''
       severity: 3
       priority: 2
   register: new_incident
+
+- name: Create an incident using host instead of instance
+  snow_record:
+    username: ansible_test
+    password: my_password
+    host: dev99999.mycustom.domain.com
+    state: present
+    data:
+      short_description: "This is a test incident opened by Ansible"
+      priority: 2
 
 - name: Delete the record we just made
   snow_record:
@@ -153,7 +163,7 @@ import os
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes, to_native
-from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowClient
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowClient
 
 try:
     # This is being handled by ServiceNowClient
@@ -182,11 +192,21 @@ def run_module():
         ['state', 'absent', ['number']],
     ]
 
+    module_mutually_exclusive = [
+        ['host', 'instance'],
+    ]
+
+    module_required_one_of = [
+        ['host', 'instance'],
+    ]
+
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True,
         required_together=module_required_together,
-        required_if=module_required_if
+        required_if=module_required_if,
+        required_one_of=module_required_one_of,
+        mutually_exclusive=module_mutually_exclusive,
     )
 
     # Connect to ServiceNow
@@ -196,6 +216,7 @@ def run_module():
 
     params = module.params
     instance = params['instance']
+    host = params['host']
     table = params['table']
     state = params['state']
     number = params['number']
@@ -205,6 +226,7 @@ def run_module():
     result = dict(
         changed=False,
         instance=instance,
+        host=host,
         table=table,
         number=number,
         lookup_field=lookup_field

@@ -1,0 +1,17 @@
+---
+now_instance: "{{ lookup('env', 'SN_INSTANCE') }}"
+now_instance_username: "{{ lookup('env', 'SN_USERNAME') }}"
+now_instance_password: "{{ lookup('env', 'SN_PASSWORD') }}"
+now_mid_name: "{{ ansible_hostname }}"
+now_mid_threads: 25
+now_mid_date_format: 'yyyy-MM-dd HH:mm:ss'
+now_mid_proxy: false
+now_mid_proxy_host: YOUR_PROXY_HOST
+now_mid_proxy_port: YOUR_PROXY_PORT
+now_mid_proxy_username: YOUR_PROXY_USER_NAME
+now_mid_proxy_password: YOUR_PROXY_PASSWORD
+
+now_mid_base_https_uri: "https://install.service-now.com/glide/distribution/builds/package/mid"
+now_mid_base_http_uri: "http://install.service-now.com/glide/distribution/builds/package/mid"
+now_mid_base_path_win: "c:/servicenow"
+now_mid_base_path: "/opt/servicenow"

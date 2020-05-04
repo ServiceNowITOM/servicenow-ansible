@@ -1,4 +1,7 @@
 from __future__ import absolute_import, division, print_function
+import netaddr
+from ansible.errors import AnsibleError, AnsibleParserError
+from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 __metaclass__ = type
 DOCUMENTATION = r'''
     name: servicenow.servicenow.now
@@ -61,7 +64,7 @@ DOCUMENTATION = r'''
             type: bool
             default: False
         enhanced_groups:
-            description: enable enhanced groups from CMDB relationships. Only used if enhanced is enabled. 
+            description: enable enhanced groups from CMDB relationships. Only used if enhanced is enabled.
             type: bool
             default: True
 
@@ -109,15 +112,11 @@ keyed_groups:
     prefix: 'tag'
 '''
 
-from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
-from ansible.errors import AnsibleError, AnsibleParserError
-import netaddr
 try:
     import requests
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
-import sys
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -125,13 +124,14 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = 'servicenow.servicenow.now'
 
     def verify_file(self, path):
-         valid = False
-         if super(InventoryModule, self).verify_file(path):
-             if path.endswith(('now.yaml', 'now.yml')):
-                 valid = True
-             else:
-                 self.display.vvv('Skipping due to inventory source not ending in "now.yaml" nor "now.yml"')
-         return valid
+        valid = False
+        if super(InventoryModule, self).verify_file(path):
+            if path.endswith(('now.yaml', 'now.yml')):
+                valid = True
+            else:
+                self.display.vvv(
+                    'Skipping due to inventory source not ending in "now.yaml" nor "now.yml"')
+        return valid
 
     def invoke(self, verb, path, data):
         auth = requests.auth.HTTPBasicAuth(self.get_option('username'),
@@ -226,7 +226,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             target = None
 
-            #select name for host
+            # select name for host
             for k in selection:
                 if k in record:
                     if record[k] != '':
@@ -239,9 +239,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             # add host to inventory
             if netaddr.valid_ipv4(target) or netaddr.valid_ipv6(target):
-              host_name = self.inventory.add_host(target)
+                host_name = self.inventory.add_host(target)
             else:
-              host_name = self.inventory.add_host(to_safe_group_name(target))
+                host_name = self.inventory.add_host(to_safe_group_name(target))
 
             # set variables for host
             for k in record.keys():
@@ -251,19 +251,20 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             if enhanced and enhanced_groups:
                 for item in record['child_relationships']:
                     ci = to_safe_group_name(item['ci'])
-                    ci_rel_type = to_safe_group_name(item['ci_rel_type'].split('__')[0])
+                    ci_rel_type = to_safe_group_name(
+                        item['ci_rel_type'].split('__')[0])
                     ci_type = to_safe_group_name(item['ci_type'])
-    
                     if ci != '' and ci_rel_type != '' and ci_type != '':
                         child_group = "%s_%s" % (ci, ci_rel_type)
                         self.inventory.add_group(child_group)
                         self.inventory.add_child(child_group, host_name)
-                
+
                 for item in record['parent_relationships']:
                     ci = to_safe_group_name(item['ci'])
-                    ci_rel_type = to_safe_group_name(item['ci_rel_type'].split('__')[-1])
+                    ci_rel_type = to_safe_group_name(
+                        item['ci_rel_type'].split('__')[-1])
                     ci_type = to_safe_group_name(item['ci_type'])
-    
+
                     if ci != '' and ci_rel_type != '' and ci_type != '':
                         child_group = "%s_%s" % (ci, ci_rel_type)
                         self.inventory.add_group(child_group)

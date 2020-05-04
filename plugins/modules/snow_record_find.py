@@ -17,46 +17,47 @@ DOCUMENTATION = '''
 ---
 module: snow_record_find
 short_description: Search for multiple records from ServiceNow
-version_added: "2.9"
-description: >-
-    Gets multiple records from a specified table from ServiceNow based
-    on a query dictionary.
+description:
+    - Gets multiple records from a specified table from ServiceNow based on a query dictionary.
 options:
     table:
-      description: >-
-        Table to query for records.
+      description:
+      - Table to query for records.
       type: str
       required: false
       default: incident
     query:
-      description: >-
-        Dict to query for records.
+      description:
+      - Dict to query for records.
       type: dict
       required: true
     max_records:
-      description: >-
-        Maximum number of records to return.
+      description:
+      - Maximum number of records to return.
       type: int
       required: false
       default: 20
     order_by:
-      description: >-
-        Field to sort the results on.  Can prefix with "-" or "+" to
-        change decending or ascending sort order.
+      description:
+      - Field to sort the results on.
+      - Can prefix with "-" or "+" to change descending or ascending sort order.
       type: str
       default: "-created_on"
       required: false
     return_fields:
-      description: >-
-        Fields of the record to return in the json.  By default, all
-        fields will be returned.
+      description:
+      - Fields of the record to return in the json.
+      - By default, all fields will be returned.
       type: list
       required: false
+      elements: str
 requirements:
     - python pysnow (pysnow)
 author:
     - Tim Rightnour (@garbled1)
-extends_documentation_fragment: service_now.documentation
+extends_documentation_fragment:
+- servicenow.servicenow.service_now.documentation
+
 '''
 
 EXAMPLES = '''
@@ -65,6 +66,18 @@ EXAMPLES = '''
     username: ansible_test
     password: my_password
     instance: dev99999
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+
+- name: Search for incident using host instead of instance
+  snow_record_find:
+    username: ansible_test
+    password: my_password
+    host: dev99999.mycustom.domain.com
     table: incident
     query:
       assignment_group: d625dccec0a8016700a222a0f7900d06
@@ -209,16 +222,26 @@ def run_module():
         query=dict(type='dict', required=True),
         max_records=dict(default=20, type='int', required=False),
         order_by=dict(default='-created_on', type='str', required=False),
-        return_fields=dict(default=None, type='list', required=False)
+        return_fields=dict(default=None, type='list', required=False, elements='str')
     )
     module_required_together = [
         ['client_id', 'client_secret']
     ]
 
+    module_mutually_exclusive = [
+        ['host', 'instance'],
+    ]
+
+    module_required_one_of = [
+        ['host', 'instance'],
+    ]
+
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True,
-        required_together=module_required_together
+        required_together=module_required_together,
+        required_one_of=module_required_one_of,
+        mutually_exclusive=module_mutually_exclusive,
     )
 
     # Connect to ServiceNow
@@ -228,6 +251,7 @@ def run_module():
 
     params = module.params
     instance = params['instance']
+    host = params['host']
     table = params['table']
     query = params['query']
     max_records = params['max_records']
@@ -236,6 +260,7 @@ def run_module():
     result = dict(
         changed=False,
         instance=instance,
+        host=host,
         table=table,
         query=query,
         max_records=max_records,

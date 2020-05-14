@@ -80,7 +80,7 @@ For existing Ansible roles, please also reference the full namespace, collection
 - snow_record_find - Gets multiple records from a specified table from ServiceNow based on a query dictionary.
 
 ### Plugins
--  now - ServiceNow Inventory Plugin
+-  [now](docs/inventory.md) - ServiceNow Inventory Plugin
 
 ## Contributing
 

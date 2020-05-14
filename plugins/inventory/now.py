@@ -3,7 +3,7 @@ import netaddr
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 __metaclass__ = type
-DOCUMENTATION = r'''
+DOCUMENTATION = '''
     name: servicenow.servicenow.now
     plugin_type: inventory
     author:
@@ -16,6 +16,9 @@ DOCUMENTATION = r'''
     extends_documentation_fragment:
         - constructed
         - inventory_cache
+    requirements:
+        - requests
+        - netaddr
     options:
         plugin:
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
@@ -70,7 +73,7 @@ DOCUMENTATION = r'''
 
 '''
 
-EXAMPLES = r'''
+EXAMPLES = '''
 plugin: servicenow.servicenow.now
 instance: demo.service-now.com
 username: admin

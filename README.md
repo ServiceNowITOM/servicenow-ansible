@@ -76,8 +76,8 @@ For existing Ansible roles, please also reference the full namespace, collection
 ## Resource Included
 
 ### Modules
-- snow_record - Creates, deletes and updates a single record in ServiceNow.
-- snow_record_find - Gets multiple records from a specified table from ServiceNow based on a query dictionary.
+- [snow_record](docs/snow_record.md) - Creates, deletes and updates a single record in ServiceNow.
+- [snow_record_find](docs/snow_record_find.md) - Gets multiple records from a specified table from ServiceNow based on a query dictionary.
 
 ### Plugins
 -  [now](docs/inventory.md) - ServiceNow Inventory Plugin

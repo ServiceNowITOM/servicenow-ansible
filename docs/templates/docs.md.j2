@@ -1,4 +1,4 @@
-{{ docs.name }} - {{ docs.short_description }}
+{% if docs.name is defined %}{{ docs.name }}{% else %}{{ docs.module }}{% endif %} - {{ docs.short_description }}
 ====================================
 - [Synopsis](Synopsis)
 - [Requirements](Requirements)

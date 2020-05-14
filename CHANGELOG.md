@@ -3,7 +3,7 @@
 ## unreleased
 ### Added
   - CI status badge on README
-  - Add docs for inventory plugin
+  - Add docs for inventory plugin and modules
 
 ## [1.0.2]
 ### Added

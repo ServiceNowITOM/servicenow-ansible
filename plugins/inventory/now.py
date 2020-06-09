@@ -39,7 +39,6 @@ DOCUMENTATION = '''
         password:
             description: The ServiceNow instance user password.
             type: string
-            secret: true
             env:
                 - name: SN_PASSWORD
         table:

@@ -25,7 +25,6 @@ options:
       - Mutually exclusive with C(instance).
       - Environment variable support added in Ansible 2.10.
       type: str
-      version_added: '2.10'
     username:
       description:
       - Name of user for connection to ServiceNow.

@@ -4,7 +4,7 @@
   gather_facts: no
   connection: local
   vars:
-    collection_namespace: "{{ namespace  | lower }}"
+    collection_namespace: "servicenow"
     collection_name: servicenow
     collection_version: "{{ github_tag.split('/')[-1] | regex_search('(\\d.\\d.\\d.*)') }}"
     collection_repo: https://github.com/ServiceNowITOM/servicenow-ansible

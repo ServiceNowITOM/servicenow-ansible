@@ -4,6 +4,7 @@
 ### Added
   - CI status badge on README
   - Add docs for inventory plugin and modules
+  - inventory plugin, snow_record, and snow_record find use same authentication parameters from doc fragment
 
 ## [1.0.2]
 ### Added

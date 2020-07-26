@@ -14,6 +14,7 @@ DOCUMENTATION = '''
     description:
         - ServiceNow Inventory plugin
     extends_documentation_fragment:
+        - servicenow.servicenow.service_now
         - constructed
         - inventory_cache
     requirements:
@@ -24,23 +25,6 @@ DOCUMENTATION = '''
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
             required: True
             choices: ['servicenow.servicenow.now']
-        instance:
-            description: The ServiceNow instance URI. The URI should be the fully-qualified domain name, e.g. 'your-instance.servicenow.com'.
-            type: string
-            required: True
-            env:
-                - name: SN_INSTANCE
-        username:
-            description: The ServiceNow user acount, it should have rights to read cmdb_ci_server (default), or table specified by SN_TABLE
-            type: string
-            required: True
-            env:
-                - name: SN_USERNAME
-        password:
-            description: The ServiceNow instance user password.
-            type: string
-            env:
-                - name: SN_PASSWORD
         table:
             description: The ServiceNow table to query
             type: string
@@ -74,7 +58,7 @@ DOCUMENTATION = '''
 
 EXAMPLES = '''
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 keyed_groups:
@@ -83,7 +67,7 @@ keyed_groups:
     separator: ''
 
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+host: servicenow.mydomain.com
 username: admin
 password: password
 fields: [name,host_name,fqdn,ip_address,sys_class_name, install_status, classification,vendor]
@@ -100,7 +84,7 @@ keyed_groups:
     prefix: 'status'
 
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 fields:
@@ -144,9 +128,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         }
         proxy = self.get_option('proxy')
 
+        if self.get_option('instance'):
+            fqdn = "%s.service-now.com" % (self.get_option('instance'))
+        elif self.get_option('host'):
+            fqdn = self.get_option('host')
+        else:
+          raise AnsibleError("instance or host must be defined")
+
         # build url
-        self.url = "https://%s/%s" % (self.get_option('instance'), path)
+        self.url = "https://%s/%s" % (fqdn, path)
         url = self.url
+        self.display.vvv("Connecting to...%s" % (url))
         results = []
 
         if not self.update_cache:

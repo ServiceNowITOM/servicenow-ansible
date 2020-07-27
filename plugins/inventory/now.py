@@ -166,7 +166,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         elif self.get_option('host'):
             fqdn = self.get_option('host')
         else:
-           raise AnsibleError("instance or host must be defined")
+            raise AnsibleError("instance or host must be defined")
 
         # build url
         self.url = "https://%s/%s" % (fqdn, path)

@@ -14,7 +14,6 @@ DOCUMENTATION = '''
     description:
         - ServiceNow Inventory plugin
     extends_documentation_fragment:
-        - servicenow.servicenow.service_now
         - constructed
         - inventory_cache
     requirements:
@@ -25,6 +24,40 @@ DOCUMENTATION = '''
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
             required: True
             choices: ['servicenow.servicenow.now']
+        instance:
+          description:
+          - The ServiceNow instance name, without the domain, service-now.com.
+          - If the value is not specified in the task, the value of environment variable C(SN_INSTANCE) will be used instead.
+          required: false
+          type: str
+          env:
+            - name: SN_INSTANCE
+        host:
+          description:
+          - The ServiceNow hostname.
+          - This value is FQDN for ServiceNow host.
+          - If the value is not specified in the task, the value of environment variable C(SN_HOST) will be used instead.
+          - Mutually exclusive with C(instance).
+          type: str
+          required: false
+          env:
+            - name: SN_HOST
+        username:
+          description:
+          - Name of user for connection to ServiceNow.
+          - If the value is not specified, the value of environment variable C(SN_USERNAME) will be used instead.
+          required: false
+          type: str
+          env:
+            - name: SN_USERNAME
+        password:
+          description:
+          - Password for username.
+          - If the value is not specified, the value of environment variable C(SN_PASSWORD) will be used instead.
+          required: true
+          type: str
+          env:
+            - name: SN_PASSWORD
         table:
             description: The ServiceNow table to query
             type: string
@@ -133,7 +166,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         elif self.get_option('host'):
             fqdn = self.get_option('host')
         else:
-          raise AnsibleError("instance or host must be defined")
+           raise AnsibleError("instance or host must be defined")
 
         # build url
         self.url = "https://%s/%s" % (fqdn, path)

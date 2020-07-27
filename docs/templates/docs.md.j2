@@ -27,7 +27,7 @@
 {{ docs.options[option]['default'] }}{% endif %}</td>
 <td>{% if docs.options[option]['env'] is defined %}<b>env:</b><br>
 {{ docs.options[option]['env'] | to_nice_yaml }}{% endif %}</td>
-<td> {{ docs.options[option]['description'] }}</td>
+<td>{% if docs.options[option]['description'] is string %} {{docs.options[option]['description']}} {% else %} {% for line in docs.options[option]['description'] %} {{line}} {% endfor %} {% endif %}</td>
 </tr>
 {% endfor %}
 </table>

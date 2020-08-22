@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    sn_instance: dev89007
+    login: &login
+      username: admin
+      password: ha53wiaYCKDX
+
+  tasks:
+  - name: test with instance
+    servicenow.servicenow.snow_record:
+      state: present
+      table: change_request
+      instance: "{{ sn_instance }}"
+      data:
+        short_description: "Test 1 from Ansible Collection"
+      <<: *login
+
+  - name: test with instance
+    servicenow.servicenow.snow_record:
+      state: present
+      table: change_request
+      host: "{{ sn_instance }}.service-now.com"
+      data:
+        short_description: "Test 2 from Ansible Collection"
+      <<: *login
+
+  - name: find test records
+    servicenow.servicenow.snow_record_find:
+      table: change_request
+      instance: "{{ sn_instance }}"
+      query:
+        starts_with:
+          - short_description: "Test"
+      <<: *login

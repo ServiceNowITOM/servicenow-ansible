@@ -26,7 +26,7 @@ snow_record_find - Search for multiple records from ServiceNow
 <td><b>Default:</b><br> 
 incident</td>
 <td></td>
-<td> [u'Table to query for records.']</td>
+<td>  Table to query for records.  </td>
 </tr>
 <tr>
 <td><b>max_records</b></br>
@@ -34,14 +34,14 @@ incident</td>
 <td><b>Default:</b><br> 
 20</td>
 <td></td>
-<td> [u'Maximum number of records to return.']</td>
+<td>  Maximum number of records to return.  </td>
 </tr>
 <tr>
 <td><b>return_fields</b></br>
 </td>
 <td></td>
 <td></td>
-<td> [u'Fields of the record to return in the json.', u'By default, all fields will be returned.']</td>
+<td>  Fields of the record to return in the json.  By default, all fields will be returned.  </td>
 </tr>
 <tr>
 <td><b>order_by</b></br>
@@ -49,14 +49,14 @@ incident</td>
 <td><b>Default:</b><br> 
 -created_on</td>
 <td></td>
-<td> [u'Field to sort the results on.', u'Can prefix with "-" or "+" to change descending or ascending sort order.']</td>
+<td>  Field to sort the results on.  Can prefix with "-" or "+" to change descending or ascending sort order.  </td>
 </tr>
 <tr>
 <td><b>query</b></br>
 <p style="color:red;font-size:75%">required</p></td>
 <td></td>
 <td></td>
-<td> [u'Dict to query for records.']</td>
+<td>  Dict to query for records.  </td>
 </tr>
 </table>
 

@@ -25,7 +25,7 @@ snow_record - Manage records in ServiceNow
 </td>
 <td></td>
 <td></td>
-<td> [u'Record number to update.', u'Required for C(state:absent).']</td>
+<td>  Record number to update.  Required for C(state:absent).  </td>
 </tr>
 <tr>
 <td><b>state</b></br>
@@ -35,14 +35,14 @@ snow_record - Manage records in ServiceNow
 - absent
 </td>
 <td></td>
-<td> [u'If C(present) is supplied with a C(number) argument, the module will attempt to update the record with the supplied data.', u'If no such record exists, a new one will be created.', u'C(absent) will delete a record.']</td>
+<td>  If C(present) is supplied with a C(number) argument, the module will attempt to update the record with the supplied data.  If no such record exists, a new one will be created.  C(absent) will delete a record.  </td>
 </tr>
 <tr>
 <td><b>attachment</b></br>
 </td>
 <td></td>
 <td></td>
-<td> [u'Attach a file to the record.']</td>
+<td>  Attach a file to the record.  </td>
 </tr>
 <tr>
 <td><b>table</b></br>
@@ -50,7 +50,7 @@ snow_record - Manage records in ServiceNow
 <td><b>Default:</b><br> 
 incident</td>
 <td></td>
-<td> [u'Table to query for records.']</td>
+<td>  Table to query for records.  </td>
 </tr>
 <tr>
 <td><b>lookup_field</b></br>
@@ -58,14 +58,14 @@ incident</td>
 <td><b>Default:</b><br> 
 number</td>
 <td></td>
-<td> [u'Changes the field that C(number) uses to find records.']</td>
+<td>  Changes the field that C(number) uses to find records.  </td>
 </tr>
 <tr>
 <td><b>data</b></br>
 </td>
 <td></td>
 <td></td>
-<td> [u'key, value pairs of data to load into the record. See Examples.', u'Required for C(state:present).']</td>
+<td>  key, value pairs of data to load into the record. See Examples.  Required for C(state:present).  </td>
 </tr>
 </table>
 

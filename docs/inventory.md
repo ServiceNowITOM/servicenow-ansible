@@ -23,12 +23,12 @@ servicenow.servicenow.now - ServiceNow Inventory Plugin
 </tr>
 <tr>
 <td><b>username</b></br>
-<p style="color:red;font-size:75%">required</p></td>
+</td>
 <td></td>
 <td><b>env:</b><br>
 -   name: SN_USERNAME
 </td>
-<td> The ServiceNow user acount, it should have rights to read cmdb_ci_server (default), or table specified by SN_TABLE</td>
+<td>  Name of user for connection to ServiceNow.  If the value is not specified, the value of environment variable C(SN_USERNAME) will be used instead.  </td>
 </tr>
 <tr>
 <td><b>plugin</b></br>
@@ -37,7 +37,7 @@ servicenow.servicenow.now - ServiceNow Inventory Plugin
 - servicenow.servicenow.now
 </td>
 <td></td>
-<td> The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.</td>
+<td> The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'. </td>
 </tr>
 <tr>
 <td><b>fields</b></br>
@@ -45,16 +45,25 @@ servicenow.servicenow.now - ServiceNow Inventory Plugin
 <td><b>Default:</b><br> 
 ip_address,fqdn,host_name,sys_class_name,name</td>
 <td></td>
-<td> Comma seperated string providing additional table columns to add as host vars to each inventory host.</td>
+<td> Comma seperated string providing additional table columns to add as host vars to each inventory host. </td>
 </tr>
 <tr>
 <td><b>instance</b></br>
-<p style="color:red;font-size:75%">required</p></td>
+</td>
 <td></td>
 <td><b>env:</b><br>
 -   name: SN_INSTANCE
 </td>
-<td> The ServiceNow instance URI. The URI should be the fully-qualified domain name, e.g. 'your-instance.servicenow.com'.</td>
+<td>  The ServiceNow instance name, without the domain, service-now.com.  If the value is not specified in the task, the value of environment variable C(SN_INSTANCE) will be used instead.  </td>
+</tr>
+<tr>
+<td><b>host</b></br>
+</td>
+<td></td>
+<td><b>env:</b><br>
+-   name: SN_HOST
+</td>
+<td>  The ServiceNow hostname.  This value is FQDN for ServiceNow host.  If the value is not specified in the task, the value of environment variable C(SN_HOST) will be used instead.  Mutually exclusive with C(instance).  </td>
 </tr>
 <tr>
 <td><b>filter_results</b></br>
@@ -62,7 +71,7 @@ ip_address,fqdn,host_name,sys_class_name,name</td>
 <td><b>Default:</b><br> 
 </td>
 <td></td>
-<td> Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries.</td>
+<td> Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries. </td>
 </tr>
 <tr>
 <td><b>proxy</b></br>
@@ -70,7 +79,7 @@ ip_address,fqdn,host_name,sys_class_name,name</td>
 <td><b>Default:</b><br> 
 </td>
 <td></td>
-<td> Proxy server to use for requests to ServiceNow.</td>
+<td> Proxy server to use for requests to ServiceNow. </td>
 </tr>
 <tr>
 <td><b>enhanced</b></br>
@@ -78,7 +87,7 @@ ip_address,fqdn,host_name,sys_class_name,name</td>
 <td><b>Default:</b><br> 
 False</td>
 <td></td>
-<td> enable enhanced inventory which provides relationship information from CMDB. Requires installation of Update Set.</td>
+<td> enable enhanced inventory which provides relationship information from CMDB. Requires installation of Update Set. </td>
 </tr>
 <tr>
 <td><b>selection_order</b></br>
@@ -86,7 +95,7 @@ False</td>
 <td><b>Default:</b><br> 
 ip_address,fqdn,host_name,name</td>
 <td></td>
-<td> Comma seperated string providing ability to define selection preference order.</td>
+<td> Comma seperated string providing ability to define selection preference order. </td>
 </tr>
 <tr>
 <td><b>table</b></br>
@@ -94,7 +103,7 @@ ip_address,fqdn,host_name,name</td>
 <td><b>Default:</b><br> 
 cmdb_ci_server</td>
 <td></td>
-<td> The ServiceNow table to query</td>
+<td> The ServiceNow table to query </td>
 </tr>
 <tr>
 <td><b>enhanced_groups</b></br>
@@ -102,16 +111,16 @@ cmdb_ci_server</td>
 <td><b>Default:</b><br> 
 True</td>
 <td></td>
-<td> enable enhanced groups from CMDB relationships. Only used if enhanced is enabled.</td>
+<td> enable enhanced groups from CMDB relationships. Only used if enhanced is enabled. </td>
 </tr>
 <tr>
 <td><b>password</b></br>
-</td>
+<p style="color:red;font-size:75%">required</p></td>
 <td></td>
 <td><b>env:</b><br>
 -   name: SN_PASSWORD
 </td>
-<td> The ServiceNow instance user password.</td>
+<td>  Password for username.  If the value is not specified, the value of environment variable C(SN_PASSWORD) will be used instead.  </td>
 </tr>
 </table>
 
@@ -119,7 +128,7 @@ True</td>
 ```
 
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 keyed_groups:
@@ -128,7 +137,7 @@ keyed_groups:
     separator: ''
 
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+host: servicenow.mydomain.com
 username: admin
 password: password
 fields: [name,host_name,fqdn,ip_address,sys_class_name, install_status, classification,vendor]
@@ -145,7 +154,7 @@ keyed_groups:
     prefix: 'status'
 
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 fields:

@@ -1,5 +1,4 @@
 from __future__ import absolute_import, division, print_function
-import netaddr
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 __metaclass__ = type
@@ -18,7 +17,6 @@ DOCUMENTATION = '''
         - inventory_cache
     requirements:
         - requests
-        - netaddr
     options:
         plugin:
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
@@ -265,10 +263,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 continue
 
             # add host to inventory
-            if netaddr.valid_ipv4(target) or netaddr.valid_ipv6(target):
-                host_name = self.inventory.add_host(target)
-            else:
-                host_name = self.inventory.add_host(to_safe_group_name(target))
+            host_name = self.inventory.add_host(target))
 
             # set variables for host
             for k in record.keys():

@@ -22,3 +22,9 @@ jobs:
 
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color --python 3.6
+
+      - name: Install antsibull-changelog
+        run: pip install antsibull-changelog
+
+      - name: Run Changelog lint
+        run: antsibull-changelog lint

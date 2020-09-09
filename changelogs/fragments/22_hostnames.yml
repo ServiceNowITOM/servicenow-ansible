@@ -1,0 +1,2 @@
+bugfix:
+- fix inventory plugin transforming hostnames unnecessarily 

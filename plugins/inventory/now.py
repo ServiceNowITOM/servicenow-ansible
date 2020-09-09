@@ -263,7 +263,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 continue
 
             # add host to inventory
-            host_name = self.inventory.add_host(target))
+            host_name = self.inventory.add_host(target)
 
             # set variables for host
             for k in record.keys():

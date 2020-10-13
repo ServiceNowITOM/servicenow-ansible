@@ -7,13 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
-DOCUMENTATION = '''
+DOCUMENTATION = r'''
 ---
 module: snow_record_find
 short_description: Search for multiple records from ServiceNow
@@ -60,9 +54,9 @@ extends_documentation_fragment:
 
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Search for incident assigned to group, return specific fields
-  snow_record_find:
+  servicenow.servicenow.snow_record_find:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -74,7 +68,7 @@ EXAMPLES = '''
       - opened_at
 
 - name: Search for incident using host instead of instance
-  snow_record_find:
+  servicenow.servicenow.snow_record_find:
     username: ansible_test
     password: my_password
     host: dev99999.mycustom.domain.com
@@ -86,7 +80,7 @@ EXAMPLES = '''
       - opened_at
 
 - name: Using OAuth, search for incident assigned to group, return specific fields
-  snow_record_find:
+  servicenow.servicenow.snow_record_find:
     username: ansible_test
     password: my_password
     client_id: "1234567890abcdef1234567890abcdef"
@@ -100,7 +94,7 @@ EXAMPLES = '''
       - opened_at
 
 - name: Find open standard changes with my template
-  snow_record_find:
+  servicenow.servicenow.snow_record_find:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -127,7 +121,7 @@ EXAMPLES = '''
       - short_description
 '''
 
-RETURN = '''
+RETURN = r'''
 record:
     description: The full contents of the matching ServiceNow records as a list of records.
     type: dict

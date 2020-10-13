@@ -1,9 +1,12 @@
+#
+# Copyright: (c), Ansible Project
+#
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import absolute_import, division, print_function
-import netaddr
-from ansible.errors import AnsibleError, AnsibleParserError
-from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 __metaclass__ = type
-DOCUMENTATION = '''
+
+DOCUMENTATION = r'''
     name: servicenow.servicenow.now
     plugin_type: inventory
     author:
@@ -12,7 +15,7 @@ DOCUMENTATION = '''
     short_description: ServiceNow Inventory Plugin
     version_added: "2.10"
     description:
-        - ServiceNow Inventory plugin
+        - ServiceNow Inventory plugin.
     extends_documentation_fragment:
         - constructed
         - inventory_cache
@@ -59,7 +62,7 @@ DOCUMENTATION = '''
           env:
             - name: SN_PASSWORD
         table:
-            description: The ServiceNow table to query
+            description: The ServiceNow table to query.
             type: string
             default: cmdb_ci_server
         fields:
@@ -89,7 +92,8 @@ DOCUMENTATION = '''
 
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
+# Simple Inventory Plugin example
 plugin: servicenow.servicenow.now
 instance: dev89007
 username: admin
@@ -99,6 +103,7 @@ keyed_groups:
     prefix: ''
     separator: ''
 
+# Using Keyed Groups
 plugin: servicenow.servicenow.now
 host: servicenow.mydomain.com
 username: admin
@@ -116,6 +121,7 @@ keyed_groups:
   - key: sn_install_status | lower
     prefix: 'status'
 
+# Compose hostvars
 plugin: servicenow.servicenow.now
 instance: dev89007
 username: admin
@@ -131,11 +137,15 @@ keyed_groups:
     prefix: 'tag'
 '''
 
+import netaddr
 try:
     import requests
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
+
+from ansible.errors import AnsibleError, AnsibleParserError
+from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -171,7 +181,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         # build url
         self.url = "https://%s/%s" % (fqdn, path)
         url = self.url
-        self.display.vvv("Connecting to...%s" % (url))
+        self.display.vvv("Connecting to...%s" % url)
         results = []
 
         if not self.update_cache:

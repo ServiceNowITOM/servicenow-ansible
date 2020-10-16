@@ -82,7 +82,7 @@ DOCUMENTATION = r'''
             default: ''
         enhanced:
             description:
-             - Enable enhanced inventory which provides relationship information from CMDB. 
+             - Enable enhanced inventory which provides relationship information from CMDB.
              - Requires installation of Update Set located in update_sets directory.
             type: bool
             default: False

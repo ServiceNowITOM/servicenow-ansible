@@ -3,7 +3,7 @@
 
 - name: Get ServiceNow build stats
   uri:
-    url: "https://{{ now_instance }}/stats.do"
+    url: "https://{{ (now_instance is defined) | ternary(now_instance+'.service-now.com', now_host) }}/stats.do"
     return_content: yes
   register: now_instance_stats
   delegate_to: localhost

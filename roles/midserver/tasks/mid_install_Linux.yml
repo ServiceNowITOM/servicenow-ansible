@@ -42,7 +42,7 @@
 
 # TODO detect if server daemon already installed
 - name: Install MID service
-  raw: "{{ now_mid_base_path }}/agent/bin/mid.sh install"
+  shell: "{{ now_mid_base_path }}/agent/bin/mid.sh install"
   register: install_result
   when: not p.stat.exists
 

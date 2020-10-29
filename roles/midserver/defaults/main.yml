@@ -1,5 +1,6 @@
 ---
 now_instance: "{{ lookup('env', 'SN_INSTANCE') }}"
+now_host: "{{ lookup('env', 'SN_HOST') }}"
 now_instance_username: "{{ lookup('env', 'SN_USERNAME') }}"
 now_instance_password: "{{ lookup('env', 'SN_PASSWORD') }}"
 now_mid_name: "{{ ansible_hostname }}"

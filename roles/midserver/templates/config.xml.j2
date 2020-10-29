@@ -20,7 +20,7 @@
 
        <!-- Tells the MID server where to contact its associated Service-now instance.  Edit 
             this value to provide the URL of your organization's Service-now instance. -->
-       <parameter name="url" value="https://{{ now_instance }}"/>
+       <parameter name="url" value="https://{{ (now_instance is defined) | ternary(now_instance+'.service-now.com', now_host) }}"/>
 
 	   <!-- If your Service-now instance has authentication enabled (the normal case), set 
             these parameters to define the user name and password the MID server will use 

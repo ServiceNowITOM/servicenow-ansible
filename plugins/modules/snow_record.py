@@ -7,13 +7,8 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
 
-DOCUMENTATION = '''
+DOCUMENTATION = r'''
 ---
 module: snow_record
 short_description: Manage records in ServiceNow
@@ -31,7 +26,7 @@ options:
       - If C(present) is supplied with a C(number) argument, the module will attempt to update the record with the supplied data.
       - If no such record exists, a new one will be created.
       - C(absent) will delete a record.
-      choices: [ 'present', 'absent' ]
+      choices: [ present, absent ]
       required: true
       type: str
     data:
@@ -65,9 +60,9 @@ extends_documentation_fragment:
 
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Grab a user record
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -77,7 +72,7 @@ EXAMPLES = '''
     lookup_field: sys_id
 
 - name: Grab a user record using OAuth
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     client_id: "1234567890abcdef1234567890abcdef"
@@ -89,7 +84,7 @@ EXAMPLES = '''
     lookup_field: sys_id
 
 - name: Create an incident
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -101,7 +96,7 @@ EXAMPLES = '''
   register: new_incident
 
 - name: Create an incident using host instead of instance
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     host: dev99999.mycustom.domain.com
@@ -111,7 +106,7 @@ EXAMPLES = '''
       priority: 2
 
 - name: Delete the record we just made
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: admin
     password: xxxxxxx
     instance: dev99999
@@ -119,7 +114,7 @@ EXAMPLES = '''
     number: "{{new_incident['record']['number']}}"
 
 - name: Delete a non-existant record
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -128,7 +123,7 @@ EXAMPLES = '''
   failed_when: false
 
 - name: Update an incident
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -138,7 +133,7 @@ EXAMPLES = '''
       work_notes : "Been working all day on this thing."
 
 - name: Attach a file to an incident
-  snow_record:
+  servicenow.servicenow.snow_record:
     username: ansible_test
     password: my_password
     instance: dev99999
@@ -148,7 +143,7 @@ EXAMPLES = '''
   tags: attach
 '''
 
-RETURN = '''
+RETURN = r'''
 record:
    description: Record data from Service Now
    type: dict

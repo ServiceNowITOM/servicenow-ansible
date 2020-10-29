@@ -1,0 +1,17 @@
+ancestor: null
+releases:
+  1.0.3:
+    changes:
+      minor_changes:
+      - adds the ability to use `SN_INSTANCE` (ex. `dev61775`) or `SN_HOST` (ex. `dev61775.service-now.com`)
+        with the inventory plugin.
+      release_summary: use consistent auth parameters across plugins and modules
+      bugfixes:
+      - fix inventory plugin transforming hostnames unnecessarily
+      - fix malformed documentation on docs.ansible.com
+    fragments:
+    - 1.0.3_release_summary.yml
+    - 17_auth_consistency.yml
+    - 22_hostnames.yml
+    - 29_documentation.yml
+    release_date: '2020-10-16'

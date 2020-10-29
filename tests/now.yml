@@ -1,8 +1,8 @@
 ---
 plugin: servicenow.servicenow.now
-instance: dev93775.service-now.com
+host: dev95176.service-now.com
 username: admin
-password: le4MnTLd3bCK
+password: P0aX7VAtnyXm
 selection_order: name
 fields:
   - os
@@ -12,8 +12,7 @@ fields:
   - sys_class_name
   - name
   - disk_space
-compose:
-  os_class: sn_os.split(' ')[0]
+  - cpu_count
 groups:
   large: (sn_disk_space | int) > 100
   SAP: inventory_hostname.startswith('SAP')
@@ -23,3 +22,5 @@ keyed_groups:
     - key: os_class
       prefix: ''
       separator: ''
+compose:
+  os_class: sn_os.split(' ')[0]

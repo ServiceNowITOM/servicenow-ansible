@@ -1,8 +1,14 @@
+#
+# Copyright: (c), Ansible Project
+#
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import absolute_import, division, print_function
 import netaddr
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 __metaclass__ = type
+
 DOCUMENTATION = r'''
     name: servicenow.servicenow.now
     plugin_type: inventory
@@ -12,35 +18,53 @@ DOCUMENTATION = r'''
     short_description: ServiceNow Inventory Plugin
     version_added: "2.10"
     description:
-        - ServiceNow Inventory plugin
+        - ServiceNow Inventory plugin.
     extends_documentation_fragment:
         - constructed
         - inventory_cache
+    requirements:
+        - requests
     options:
         plugin:
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
             required: True
             choices: ['servicenow.servicenow.now']
         instance:
-            description: The ServiceNow instance URI. The URI should be the fully-qualified domain name, e.g. 'your-instance.servicenow.com'.
-            type: string
-            required: True
-            env:
-                - name: SN_INSTANCE
+          description:
+          - The ServiceNow instance name, without the domain, service-now.com.
+          - If the value is not specified in the task, the value of environment variable C(SN_INSTANCE) will be used instead.
+          required: false
+          type: str
+          env:
+            - name: SN_INSTANCE
+        host:
+          description:
+          - The ServiceNow hostname.
+          - This value is FQDN for ServiceNow host.
+          - If the value is not specified in the task, the value of environment variable C(SN_HOST) will be used instead.
+          - Mutually exclusive with C(instance).
+          type: str
+          required: false
+          env:
+            - name: SN_HOST
         username:
-            description: The ServiceNow user acount, it should have rights to read cmdb_ci_server (default), or table specified by SN_TABLE
-            type: string
-            required: True
-            env:
-                - name: SN_USERNAME
+          description:
+          - Name of user for connection to ServiceNow.
+          - If the value is not specified, the value of environment variable C(SN_USERNAME) will be used instead.
+          required: false
+          type: str
+          env:
+            - name: SN_USERNAME
         password:
-            description: The ServiceNow instance user password.
-            type: string
-            secret: true
-            env:
-                - name: SN_PASSWORD
+          description:
+          - Password for username.
+          - If the value is not specified, the value of environment variable C(SN_PASSWORD) will be used instead.
+          required: true
+          type: str
+          env:
+            - name: SN_PASSWORD
         table:
-            description: The ServiceNow table to query
+            description: The ServiceNow table to query.
             type: string
             default: cmdb_ci_server
         fields:
@@ -60,7 +84,9 @@ DOCUMENTATION = r'''
             type: string
             default: ''
         enhanced:
-            description: enable enhanced inventory which provides relationship information from CMDB. Requires installation of Update Set.
+            description:
+             - Enable enhanced inventory which provides relationship information from CMDB.
+             - Requires installation of Update Set located in update_sets directory.
             type: bool
             default: False
         enhanced_groups:
@@ -71,8 +97,9 @@ DOCUMENTATION = r'''
 '''
 
 EXAMPLES = r'''
+# Simple Inventory Plugin example
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 keyed_groups:
@@ -80,8 +107,9 @@ keyed_groups:
     prefix: ''
     separator: ''
 
+# Using Keyed Groups
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+host: servicenow.mydomain.com
 username: admin
 password: password
 fields: [name,host_name,fqdn,ip_address,sys_class_name, install_status, classification,vendor]
@@ -97,8 +125,9 @@ keyed_groups:
   - key: sn_install_status | lower
     prefix: 'status'
 
+# Compose hostvars
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
+instance: dev89007
 username: admin
 password: password
 fields:
@@ -112,11 +141,15 @@ keyed_groups:
     prefix: 'tag'
 '''
 
+import netaddr
 try:
     import requests
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
+
+from ansible.errors import AnsibleError, AnsibleParserError
+from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -142,9 +175,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         }
         proxy = self.get_option('proxy')
 
+        if self.get_option('instance'):
+            fqdn = "%s.service-now.com" % (self.get_option('instance'))
+        elif self.get_option('host'):
+            fqdn = self.get_option('host')
+        else:
+            raise AnsibleError("instance or host must be defined")
+
         # build url
-        self.url = "https://%s/%s" % (self.get_option('instance'), path)
+        self.url = "https://%s/%s" % (fqdn, path)
         url = self.url
+        self.display.vvv("Connecting to...%s" % url)
         results = []
 
         if not self.update_cache:
@@ -238,10 +279,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 continue
 
             # add host to inventory
-            if netaddr.valid_ipv4(target) or netaddr.valid_ipv6(target):
-                host_name = self.inventory.add_host(target)
-            else:
-                host_name = self.inventory.add_host(to_safe_group_name(target))
+            host_name = self.inventory.add_host(target)
 
             # set variables for host
             for k in record.keys():
@@ -254,7 +292,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                     ci_rel_type = to_safe_group_name(
                         item['ci_rel_type'].split('__')[0])
                     ci_type = to_safe_group_name(item['ci_type'])
-
                     if ci != '' and ci_rel_type != '' and ci_type != '':
                         child_group = "%s_%s" % (ci, ci_rel_type)
                         self.inventory.add_group(child_group)

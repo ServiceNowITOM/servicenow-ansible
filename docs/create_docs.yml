@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - set_fact:
+        docs: "{{ lookup('file', '../plugins/inventory/now.py') | regex_search(\"(?<=DOCUMENTATION\\s=\\s''')((.|\\n)*?)(?=''')\") | from_yaml}}"
+        examples: "{{ lookup('file', '../plugins/inventory/now.py') | regex_search(\"(?<=EXAMPLES\\s=\\s''')((.|\\n)*?)(?=''')\") }}"
+
+    - template:
+        src: ./templates/docs.md.j2
+        dest: ./inventory.md
+
+    - set_fact:
+        docs: "{{ lookup('file', '../plugins/modules/snow_record.py') | regex_search(\"(?<=DOCUMENTATION\\s=\\s''')((.|\\n)*?)(?=''')\") | from_yaml}}"
+        examples: "{{ lookup('file', '../plugins/modules/snow_record.py') | regex_search(\"(?<=EXAMPLES\\s=\\s''')((.|\\n)*?)(?=''')\") }}"
+
+    - template:
+        src: ./templates/docs.md.j2
+        dest: ./snow_record.md
+
+    - set_fact:
+        docs: "{{ lookup('file', '../plugins/modules/snow_record_find.py') | regex_search(\"(?<=DOCUMENTATION\\s=\\s''')((.|\\n)*?)(?=''')\") | from_yaml}}"
+        examples: "{{ lookup('file', '../plugins/modules/snow_record_find.py') | regex_search(\"(?<=EXAMPLES\\s=\\s''')((.|\\n)*?)(?=''')\") }}"
+
+    - template:
+        src: ./templates/docs.md.j2
+        dest: ./snow_record_find.md

@@ -1,0 +1,34 @@
+---
+namespace: {{ collection_namespace }}
+name: {{ collection_name }}
+version: {{ collection_version }}
+readme: README.md
+authors:
+- "Paul Knight <paul.knight@delaware.gov>"
+- "Tim Rightnour <thegarbledone@gmail.com>"
+- "Will Tome (@willtome)"
+- "Alex Mittell (@alex_mittell)"
+description: >
+    The Service Now modules previously packaged as part of Ansible, now
+    in a Collection distributed via Ansible Galaxy.  snow_record creates,
+    updates or deletes a record in a specified table in the Service Now
+    instance. snow_record_find retrieves one or more records based on the
+    supplied query.
+    ServiceNow Inventory Plugin for using ServiceNow CMDB as a dynamic 
+    inventory source.
+build_ignore:
+- galaxy.yml.j2
+- release.yml
+license:
+- "GPL-3.0-or-later"
+tags:
+- preview
+- servicenow
+- snow
+- collection
+- inventory
+- plugin
+repository: {{ collection_repo }}
+documentation: {{ collection_repo }}/wiki
+homepage: {{ collection_repo }}
+issues: {{ collection_repo }}/issues

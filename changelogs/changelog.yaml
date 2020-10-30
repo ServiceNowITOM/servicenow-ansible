@@ -14,4 +14,4 @@ releases:
     - 17_auth_consistency.yml
     - 22_hostnames.yml
     - 29_documentation.yml
-    release_date: '2020-10-16'
+    release_date: '2020-10-30'

@@ -31,6 +31,24 @@ options:
       type: int
       required: false
       default: 20
+    display_value:
+      description:
+      - sysparm_display_value
+      type: bool
+      required: false
+      default: false
+    exclude_reference_link:
+      description:
+      - sysparm_exclude_reference_link
+      type: bool
+      required: false
+      default: false
+    suppress_pagination_header:
+      description:
+      - sysparm_suppress_pagination_header
+      type: bool
+      required: false
+      default: false
     order_by:
       description:
       - Field to sort the results on.
@@ -215,8 +233,11 @@ def run_module():
         table=dict(type='str', required=False, default='incident'),
         query=dict(type='dict', required=True),
         max_records=dict(default=20, type='int', required=False),
+        display_value=dict(default=False, type='bool', required=False),
+        exclude_reference_link=dict(default=False, type='bool', required=False),
+        suppress_pagination_header=dict(default=False, type='bool', required=False),
         order_by=dict(default='-created_on', type='str', required=False),
-        return_fields=dict(default=None, type='list', required=False, elements='str')
+        return_fields=dict(default=[], type='list', required=False, elements='str')
     )
     module_required_together = [
         ['client_id', 'client_secret']
@@ -249,6 +270,9 @@ def run_module():
     table = params['table']
     query = params['query']
     max_records = params['max_records']
+    display_value = params['display_value']
+    exclude_reference_link = params['exclude_reference_link']
+    suppress_pagination_header = params['suppress_pagination_header']
     return_fields = params['return_fields']
 
     result = dict(
@@ -258,6 +282,9 @@ def run_module():
         table=table,
         query=query,
         max_records=max_records,
+        display_value=display_value,
+        exclude_reference_link=exclude_reference_link,
+        suppress_pagination_header=suppress_pagination_header,
         return_fields=return_fields
     )
 
@@ -265,22 +292,20 @@ def run_module():
     try:
         bq = BuildQuery(module)
         qb = bq.build_query()
-        record = conn.query(table=module.params['table'],
-                            query=qb)
-        if module.params['return_fields'] is not None:
-            res = record.get_multiple(fields=module.params['return_fields'],
-                                      limit=module.params['max_records'],
-                                      order_by=[module.params['order_by']])
-        else:
-            res = record.get_multiple(limit=module.params['max_records'],
-                                      order_by=[module.params['order_by']])
+        table = conn.resource(api_path='/table/' + table)
+
+        table.parameters.display_value = display_value
+        table.parameters.exclude_reference_link = exclude_reference_link
+        table.parameters.suppress_pagination_header = suppress_pagination_header
+
+        response = table.get(
+            query=qb,
+            limit=max_records,
+            fields=return_fields)
     except Exception as detail:
         module.fail_json(msg='Failed to find record: {0}'.format(to_native(detail)), **result)
 
-    try:
-        result['record'] = list(res)
-    except pysnow.exceptions.NoResults:
-        result['record'] = []
+    result['record'] = response.all()
 
     module.exit_json(**result)
 

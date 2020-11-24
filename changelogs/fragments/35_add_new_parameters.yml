@@ -1,0 +1,3 @@
+major_changes:
+- add support for ServiceNOW table api display_value exclude_reference_link and suppress_pagination_header
+- add related tests 

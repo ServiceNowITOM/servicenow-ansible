@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright: (c) 2021, Ansible Project
 # Copyright: (c) 2017, Tim Rightnour <thegarbledone@gmail.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -156,84 +157,74 @@ attached_file:
 
 import os
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes, to_native
-from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowClient
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
 
 try:
-    # This is being handled by ServiceNowClient
+    # This is being handled by ServiceNowModule
     import pysnow
 except ImportError:
     pass
 
 
-def run_module():
+def main():
     # define the available arguments/parameters that a user can pass to
     # the module
-    module_args = ServiceNowClient.snow_argument_spec()
+    module_args = ServiceNowModule.create_argument_spec()
     module_args.update(
-        table=dict(type='str', required=False, default='incident'),
-        state=dict(choices=['present', 'absent'],
-                   type='str', required=True),
-        number=dict(default=None, required=False, type='str'),
-        data=dict(default=None, required=False, type='dict'),
-        lookup_field=dict(default='number', required=False, type='str'),
-        attachment=dict(default=None, required=False, type='str')
+        table=dict(
+            type='str',
+            default='incident'
+        ),
+        state=dict(
+            type='str',
+            required=True,
+            choices=[
+                'present',
+                'absent'
+            ],
+        ),
+        number=dict(
+            type='str',
+            required=False
+        ),
+        data=dict(
+            type='dict',
+            required=False
+        ),
+        lookup_field=dict(
+            type='str',
+            default='number'
+        ),
+        attachment=dict(
+            type='str',
+            required=False
+        )
     )
-    module_required_together = [
-        ['client_id', 'client_secret']
-    ]
     module_required_if = [
         ['state', 'absent', ['number']],
     ]
 
-    module_mutually_exclusive = [
-        ['host', 'instance'],
-    ]
-
-    module_required_one_of = [
-        ['host', 'instance'],
-    ]
-
-    module = AnsibleModule(
+    module = ServiceNowModule(
         argument_spec=module_args,
         supports_check_mode=True,
-        required_together=module_required_together,
         required_if=module_required_if,
-        required_one_of=module_required_one_of,
-        mutually_exclusive=module_mutually_exclusive,
     )
 
-    # Connect to ServiceNow
-    service_now_client = ServiceNowClient(module)
-    service_now_client.login()
-    conn = service_now_client.conn
-
     params = module.params
-    instance = params['instance']
-    host = params['host']
     table = params['table']
     state = params['state']
     number = params['number']
     data = params['data']
     lookup_field = params['lookup_field']
 
-    result = dict(
-        changed=False,
-        instance=instance,
-        host=host,
-        table=table,
-        number=number,
-        lookup_field=lookup_field
-    )
-
     # check for attachments
     if params['attachment'] is not None:
         attach = params['attachment']
         b_attach = to_bytes(attach, errors='surrogate_or_strict')
         if not os.path.exists(b_attach):
-            module.fail_json(msg="Attachment {0} not found".format(attach))
-        result['attachment'] = attach
+            module.fail(msg="Attachment {0} not found".format(attach))
+        module.result['attachment'] = attach
     else:
         attach = None
 
@@ -243,108 +234,121 @@ def run_module():
         # if we are in check mode and have no number, we would have created
         # a record.  We can only partially simulate this
         if number is None:
-            result['record'] = dict(data)
-            result['changed'] = True
+            module.result['record'] = dict(data)
+            module.result['changed'] = True
 
         # do we want to check if the record is non-existent?
         elif state == 'absent':
             try:
-                record = conn.query(table=table, query={lookup_field: number})
+                record = module.connection.query(table=table, query={lookup_field: number})
                 res = record.get_one()
-                result['record'] = dict(Success=True)
-                result['changed'] = True
+                module.result['record'] = dict(Success=True)
+                module.result['changed'] = True
             except pysnow.exceptions.NoResults:
-                result['record'] = None
+                module.result['record'] = None
             except Exception as detail:
-                module.fail_json(msg="Unknown failure in query record: {0}".format(to_native(detail)), **result)
+                module.fail(msg="Unknown failure in query record: {0}".format(
+                        to_native(detail)
+                    )
+                )
 
         # Let's simulate modification
         else:
             try:
-                record = conn.query(table=table, query={lookup_field: number})
+                record = module.connection.query(table=table, query={lookup_field: number})
                 res = record.get_one()
                 for key, value in data.items():
                     res[key] = value
-                    result['changed'] = True
-                result['record'] = res
+                    module.result['changed'] = True
+                module.result['record'] = res
             except pysnow.exceptions.NoResults:
-                snow_error = "Record does not exist"
-                module.fail_json(msg=snow_error, **result)
+                module.fail_json(msg="Record does not exist")
             except Exception as detail:
-                module.fail_json(msg="Unknown failure in query record: {0}".format(to_native(detail)), **result)
-        module.exit_json(**result)
+                module.fail(msg="Unknown failure in query record: {0}".format(
+                        to_native(detail)
+                    )
+                )
+        module.exit()
 
     # now for the real thing: (non-check mode)
 
     # are we creating a new record?
     if state == 'present' and number is None:
         try:
-            record = conn.insert(table=table, payload=dict(data))
+            record = module.connection.insert(table=table, payload=dict(data))
         except pysnow.exceptions.UnexpectedResponseFormat as e:
-            snow_error = "Failed to create record: {0}, details: {1}".format(e.error_summary, e.error_details)
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Failed to create record: {0}, details: {1}".format(
+                    e.error_summary,
+                    e.error_details
+                )
+            )
         except pysnow.legacy_exceptions.UnexpectedResponse as e:
-            module.fail_json(msg="Failed to create record due to %s" % to_native(e), **result)
-        result['record'] = record
-        result['changed'] = True
+            module.fail(msg="Failed to create record due to %s" % to_native(e))
+        module.result['record'] = record
+        module.result['changed'] = True
 
     # we are deleting a record
     elif state == 'absent':
         try:
-            record = conn.query(table=table, query={lookup_field: number})
+            record = module.connection.query(table=table, query={lookup_field: number})
             res = record.delete()
         except pysnow.exceptions.NoResults:
             res = dict(Success=True)
         except pysnow.exceptions.MultipleResults:
-            snow_error = "Multiple record match"
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Multiple record match")
         except pysnow.exceptions.UnexpectedResponseFormat as e:
-            snow_error = "Failed to delete record: {0}, details: {1}".format(e.error_summary, e.error_details)
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Failed to delete record: {0}, details: {1}".format(
+                    e.error_summary,
+                    e.error_details
+                )
+            )
         except pysnow.legacy_exceptions.UnexpectedResponse as e:
-            module.fail_json(msg="Failed to delete record due to %s" % to_native(e), **result)
+            module.fail(msg="Failed to delete record due to %s" % to_native(e))
         except Exception as detail:
-            snow_error = "Failed to delete record: {0}".format(to_native(detail))
-            module.fail_json(msg=snow_error, **result)
-        result['record'] = res
-        result['changed'] = True
+            module.fail_json(msg="Failed to delete record: {0}".format(
+                    to_native(detail)
+                )
+            )
+        module.result['record'] = res
+        module.result['changed'] = True
 
     # We want to update a record
     else:
         try:
-            record = conn.query(table=table, query={lookup_field: number})
+            record = module.connection.query(table=table, query={lookup_field: number})
             if data is not None:
                 res = record.update(dict(data))
-                result['record'] = res
-                result['changed'] = True
+                module.result['record'] = res
+                module.result['changed'] = True
             else:
                 res = record.get_one()
-                result['record'] = res
+                module.result['record'] = res
             if attach is not None:
                 res = record.attach(b_attach)
-                result['changed'] = True
-                result['attached_file'] = res
+                module.result['changed'] = True
+                module.result['attached_file'] = res
 
         except pysnow.exceptions.MultipleResults:
-            snow_error = "Multiple record match"
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Multiple record match")
         except pysnow.exceptions.NoResults:
-            snow_error = "Record does not exist"
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Record does not exist")
         except pysnow.exceptions.UnexpectedResponseFormat as e:
-            snow_error = "Failed to update record: {0}, details: {1}".format(e.error_summary, e.error_details)
-            module.fail_json(msg=snow_error, **result)
+            snow_error = "Failed to update record: {0}, details: {1}".format(
+                e.error_summary,
+                e.error_details
+            )
+            module.fail(msg=snow_error)
         except pysnow.legacy_exceptions.UnexpectedResponse as e:
-            module.fail_json(msg="Failed to update record due to %s" % to_native(e), **result)
+            module.fail(
+                msg="Failed to update record due to %s" % to_native(e)
+            )
         except Exception as detail:
-            snow_error = "Failed to update record: {0}".format(to_native(detail))
-            module.fail_json(msg=snow_error, **result)
+            module.fail(msg="Failed to update record: {0}".format(
+                    to_native(detail)
+                )
+            )
 
-    module.exit_json(**result)
-
-
-def main():
-    run_module()
+    module.exit()
 
 
 if __name__ == '__main__':

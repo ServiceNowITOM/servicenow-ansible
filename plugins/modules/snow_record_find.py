@@ -1,10 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright: (c) 2021, Ansible Project
 # Copyright: (c) 2017, Tim Rightnour <thegarbledone@gmail.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from ansible.module_utils._text import to_native
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
 __metaclass__ = type
 
 DOCUMENTATION = r'''
@@ -128,12 +131,9 @@ record:
     returned: always
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowClient
-from ansible.module_utils._text import to_native
 
 try:
-    # This is being managed by ServiceNowClient
+    # This is being managed by ServiceNowModule
     import pysnow
 except ImportError:
     pass
@@ -172,10 +172,11 @@ class BuildQuery(object):
             for query_field, query_value in data.items():
                 if self.append_operator:
                     getattr(self.qb, logic_op)()
-                self.condition_operator[cond_op](cond_op, query_field, query_value)
+                self.condition_operator[cond_op](
+                    cond_op, query_field, query_value)
                 self.append_operator = True
         else:
-            self.module.fail_json(msg='Query is not in a supported format')
+            self.module.fail(msg='Query is not in a supported format')
 
     def _iterate_conditions(self, data, logic_op):
         if isinstance(data, dict):
@@ -183,9 +184,14 @@ class BuildQuery(object):
                 if (cond_op in self.accepted_cond_ops):
                     self._iterate_fields(fields, logic_op, cond_op)
                 else:
-                    self.module.fail_json(msg='Supported conditions: {0}'.format(str(self.condition_operator.keys())))
+                    self.module.fail(
+                        msg='Supported conditions: {0}'.format(
+                            str(self.condition_operator.keys())
+                        )
+                    )
         else:
-            self.module.fail_json(msg='Supported conditions: {0}'.format(str(self.condition_operator.keys())))
+            self.module.fail(msg='Supported conditions: {0}'.format(
+                str(self.condition_operator.keys())))
 
     def _iterate_operators(self, data):
         if isinstance(data, dict):
@@ -194,12 +200,17 @@ class BuildQuery(object):
                     self.simple_query = False
                     self._iterate_conditions(cond_op, logic_op)
                 elif self.simple_query:
-                    self.condition_operator['equals']('equals', logic_op, cond_op)
+                    self.condition_operator['equals'](
+                        'equals', logic_op, cond_op)
                     break
                 else:
-                    self.module.fail_json(msg='Query is not in a supported format')
+                    self.module.fail(msg='Query is not in a supported format')
         else:
-            self.module.fail_json(msg='Supported operators: {0}'.format(str(self.logic_operators)))
+            self.module.fail(
+                msg='Supported operators: {0}'.format(
+                    str(self.logic_operators)
+                )
+            )
 
     def build_query(self):
         self.qb = pysnow.QueryBuilder()
@@ -207,86 +218,69 @@ class BuildQuery(object):
         return (self.qb)
 
 
-def run_module():
+def main():
     # define the available arguments/parameters that a user can pass to
     # the module
-    module_args = ServiceNowClient.snow_argument_spec()
+    module_args = ServiceNowModule.create_argument_spec()
     module_args.update(
-        table=dict(type='str', required=False, default='incident'),
-        query=dict(type='dict', required=True),
-        max_records=dict(default=20, type='int', required=False),
-        order_by=dict(default='-created_on', type='str', required=False),
-        return_fields=dict(default=None, type='list', required=False, elements='str')
+        table=dict(
+            type='str',
+            default='incident'
+        ),
+        query=dict(
+            type='dict',
+            required=True
+        ),
+        max_records=dict(
+            type='int',
+            default=20
+        ),
+        order_by=dict(
+            type='str',
+            default='-created_on'
+        ),
+        return_fields=dict(
+            type='list',
+            elements='str',
+            required=False
+        )
     )
-    module_required_together = [
-        ['client_id', 'client_secret']
-    ]
 
-    module_mutually_exclusive = [
-        ['host', 'instance'],
-    ]
-
-    module_required_one_of = [
-        ['host', 'instance'],
-    ]
-
-    module = AnsibleModule(
+    module = ServiceNowModule(
         argument_spec=module_args,
         supports_check_mode=True,
-        required_together=module_required_together,
-        required_one_of=module_required_one_of,
-        mutually_exclusive=module_mutually_exclusive,
-    )
-
-    # Connect to ServiceNow
-    service_now_client = ServiceNowClient(module)
-    service_now_client.login()
-    conn = service_now_client.conn
-
-    params = module.params
-    instance = params['instance']
-    host = params['host']
-    table = params['table']
-    query = params['query']
-    max_records = params['max_records']
-    return_fields = params['return_fields']
-
-    result = dict(
-        changed=False,
-        instance=instance,
-        host=host,
-        table=table,
-        query=query,
-        max_records=max_records,
-        return_fields=return_fields
     )
 
     # Do the lookup
     try:
         bq = BuildQuery(module)
         qb = bq.build_query()
-        record = conn.query(table=module.params['table'],
-                            query=qb)
+        record = module.connection.query(
+            table=module.params['table'],
+            query=qb
+        )
         if module.params['return_fields'] is not None:
-            res = record.get_multiple(fields=module.params['return_fields'],
-                                      limit=module.params['max_records'],
-                                      order_by=[module.params['order_by']])
+            res = record.get_multiple(
+                fields=module.params['return_fields'],
+                limit=module.params['max_records'],
+                order_by=[module.params['order_by']]
+            )
         else:
-            res = record.get_multiple(limit=module.params['max_records'],
-                                      order_by=[module.params['order_by']])
+            res = record.get_multiple(
+                limit=module.params['max_records'],
+                order_by=[module.params['order_by']]
+            )
     except Exception as detail:
-        module.fail_json(msg='Failed to find record: {0}'.format(to_native(detail)), **result)
+        module.fail(
+            msg='Failed to find record: {0}'.format(to_native(detail))
+        )
 
     try:
-        result['record'] = list(res)
+        module.result['record'] = list(res)
     except pysnow.exceptions.NoResults:
-        result['record'] = []
+        module.result['record'] = []
 
-    module.exit_json(**result)
-
-
-def main():
-    run_module()
+    module.exit()
 
 
 if __name__ == '__main__':

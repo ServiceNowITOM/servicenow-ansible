@@ -120,19 +120,19 @@ class ServiceNowModule(AnsibleModule):
             )
 
     def _auth_basic(self):
-            try:
-                self.connection = pysnow.Client(
-                    instance=self.instance,
-                    host=self.host,
-                    user=self.username,
-                    password=self.password
+        try:
+            self.connection = pysnow.Client(
+                instance=self.instance,
+                host=self.host,
+                user=self.username,
+                password=self.password
+            )
+        except Exception as detail:
+            self.module.fail(
+                msg='Could not connect to ServiceNow: {0}'.format(
+                    str(detail)
                 )
-            except Exception as detail:
-                self.module.fail(
-                    msg='Could not connect to ServiceNow: {0}'.format(
-                        str(detail)
-                    )
-                )
+            )
 
     def _auth_oauth(self):
         try:
@@ -215,9 +215,9 @@ class ServiceNowModule(AnsibleModule):
         if 'invocation' not in self.result:
             self.result['invocation'] = {
                 'module_args': self.params,
-                #'module_kwargs': {
-                #   'ServiceNowModuleKWArgs': self.ServiceNowModuleKWArgs,
-                #}
+                #               'module_kwargs': {
+                #                  'ServiceNowModuleKWArgs': self.ServiceNowModuleKWArgs,
+                #               }
             }
         if self.log_level == 'debug':
             if self.module_debug:
@@ -240,7 +240,7 @@ class ServiceNowModule(AnsibleModule):
                     'oauth',
                     'token',
                     'okta',
-                ].
+                ],
                 default='basic',
                 fallback=(
                     env_fallback,
@@ -255,7 +255,7 @@ class ServiceNowModule(AnsibleModule):
                     'normal',
                 ],
                 default='normal'
-            )
+            ),
             instance=dict(
                 type='str',
                 required=False,

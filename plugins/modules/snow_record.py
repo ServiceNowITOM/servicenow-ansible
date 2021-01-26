@@ -5,7 +5,10 @@
 # Copyright: (c) 2017, Tim Rightnour <thegarbledone@gmail.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+import os
 from __future__ import absolute_import, division, print_function
+from ansible.module_utils._text import to_bytes, to_native
+from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowModule
 __metaclass__ = type
 
 
@@ -155,11 +158,6 @@ attached_file:
    returned: when supported
 '''
 
-import os
-
-from ansible.module_utils._text import to_bytes, to_native
-from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
-
 try:
     # This is being handled by ServiceNowModule
     import pysnow
@@ -240,7 +238,8 @@ def main():
         # do we want to check if the record is non-existent?
         elif state == 'absent':
             try:
-                record = module.connection.query(table=table, query={lookup_field: number})
+                record = module.connection.query(
+                    table=table, query={lookup_field: number})
                 res = record.get_one()
                 module.result['record'] = dict(Success=True)
                 module.result['changed'] = True
@@ -248,14 +247,15 @@ def main():
                 module.result['record'] = None
             except Exception as detail:
                 module.fail(msg="Unknown failure in query record: {0}".format(
-                        to_native(detail)
-                    )
+                    to_native(detail)
+                )
                 )
 
         # Let's simulate modification
         else:
             try:
-                record = module.connection.query(table=table, query={lookup_field: number})
+                record = module.connection.query(
+                    table=table, query={lookup_field: number})
                 res = record.get_one()
                 for key, value in data.items():
                     res[key] = value
@@ -265,8 +265,8 @@ def main():
                 module.fail_json(msg="Record does not exist")
             except Exception as detail:
                 module.fail(msg="Unknown failure in query record: {0}".format(
-                        to_native(detail)
-                    )
+                    to_native(detail)
+                )
                 )
         module.exit()
 
@@ -278,9 +278,9 @@ def main():
             record = module.connection.insert(table=table, payload=dict(data))
         except pysnow.exceptions.UnexpectedResponseFormat as e:
             module.fail(msg="Failed to create record: {0}, details: {1}".format(
-                    e.error_summary,
-                    e.error_details
-                )
+                e.error_summary,
+                e.error_details
+            )
             )
         except pysnow.legacy_exceptions.UnexpectedResponse as e:
             module.fail(msg="Failed to create record due to %s" % to_native(e))
@@ -290,7 +290,8 @@ def main():
     # we are deleting a record
     elif state == 'absent':
         try:
-            record = module.connection.query(table=table, query={lookup_field: number})
+            record = module.connection.query(
+                table=table, query={lookup_field: number})
             res = record.delete()
         except pysnow.exceptions.NoResults:
             res = dict(Success=True)
@@ -298,16 +299,16 @@ def main():
             module.fail(msg="Multiple record match")
         except pysnow.exceptions.UnexpectedResponseFormat as e:
             module.fail(msg="Failed to delete record: {0}, details: {1}".format(
-                    e.error_summary,
-                    e.error_details
-                )
+                e.error_summary,
+                e.error_details
+            )
             )
         except pysnow.legacy_exceptions.UnexpectedResponse as e:
             module.fail(msg="Failed to delete record due to %s" % to_native(e))
         except Exception as detail:
             module.fail_json(msg="Failed to delete record: {0}".format(
-                    to_native(detail)
-                )
+                to_native(detail)
+            )
             )
         module.result['record'] = res
         module.result['changed'] = True
@@ -315,7 +316,8 @@ def main():
     # We want to update a record
     else:
         try:
-            record = module.connection.query(table=table, query={lookup_field: number})
+            record = module.connection.query(
+                table=table, query={lookup_field: number})
             if data is not None:
                 res = record.update(dict(data))
                 module.result['record'] = res
@@ -344,8 +346,8 @@ def main():
             )
         except Exception as detail:
             module.fail(msg="Failed to update record: {0}".format(
-                    to_native(detail)
-                )
+                to_native(detail)
+            )
             )
 
     module.exit()

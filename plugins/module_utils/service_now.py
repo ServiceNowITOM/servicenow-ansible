@@ -10,7 +10,7 @@ import requests
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
-from ansible_collections.servicenow.servicenow.plugins.module_utils.bearerauth import BearerAuth
+from ansible_collections.n3pjk.servicenow.plugins.module_utils.bearerauth import BearerAuth
 
 # Pull in pysnow
 HAS_PYSNOW = False

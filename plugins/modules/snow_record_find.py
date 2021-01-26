@@ -6,9 +6,10 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowModule
 from ansible.module_utils._text import to_native
-from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
 __metaclass__ = type
+
 
 DOCUMENTATION = r'''
 ---

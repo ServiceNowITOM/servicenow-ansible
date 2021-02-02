@@ -4,24 +4,35 @@ Servicenow.Servicenow "When the Levee Breaks" Release Notes
 
 .. contents:: Topics
 
+
 v1.0.4
 ======
 
+Release Summary
+---------------
+
+Bugfixes
+--------
 Fixes #34
 Fixes #35
 
-use new PySnow API interface (0.6.0 - 0.7.X)
+Minor Changes
+-------------
 
-add support for parameters (https://developer.servicenow.com/dev.do#!/reference/api/paris/rest/c_TableAPI#table-GET):
+Use new PySnow API interface (0.6.0 - 0.7.X)
+
+Add support for parameters (https://developer.servicenow.com/dev.do#!/reference/api/paris/rest/c_TableAPI#table-GET):
 - display_value
 - exclude_reference_link
 - suppress_pagination_header
 
-new tests
+New tests:
+- search many
+- search with no result
+- search with display_value/exclude_reference_link
 
-search many
-search with no result
-search with display_value/exclude_reference_link
+=======
+
 
 v1.0.3
 ======
@@ -41,3 +52,4 @@ Bugfixes
 
 - fix inventory plugin transforming hostnames unnecessarily
 - fix malformed documentation on docs.ansible.com
+

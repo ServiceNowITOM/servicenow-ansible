@@ -4,6 +4,25 @@ Servicenow.Servicenow "When the Levee Breaks" Release Notes
 
 .. contents:: Topics
 
+v1.0.4
+======
+
+Fixes #34
+Fixes #35
+
+use new PySnow API interface (0.6.0 - 0.7.X)
+
+add support for parameters (https://developer.servicenow.com/dev.do#!/reference/api/paris/rest/c_TableAPI#table-GET):
+- display_value
+- exclude_reference_link
+- suppress_pagination_header
+
+new tests
+
+search many
+search with no result
+search with display_value/exclude_reference_link
+
 v1.0.3
 ======
 

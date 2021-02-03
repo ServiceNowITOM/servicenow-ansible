@@ -1,0 +1,220 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    sn_instance: dev89007
+    login: &login
+      username: admin
+      password: ha53wiaYCKDX
+
+  tasks:
+    - set_fact:
+        name_prefix: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
+
+    # create
+    - name: test create record
+      servicenow.servicenow.snow_record:
+        state: present
+        table: cmdb_ci_server
+        instance: "{{ sn_instance }}"
+        display_value: True
+        data:
+          name: test-{{ name_prefix }}-00{{ item }}
+        <<: *login
+      register: result
+      loop: [11, 12, 21, 22]
+
+    - assert:
+        that:
+          - result.results is defined
+          - result.results|length == 4
+          - result.results[0].record is defined
+          - result.results[0].record.name is defined
+          - result.results[0].record.name == "test-{{ name_prefix }}-0011"
+          - result.results[0].record.sys_domain is defined
+          - result.results[0].record.sys_domain.display_value is defined
+          - result.results[0].record.sys_domain.display_value == "global"
+
+    # update
+    - name: test update one record
+      servicenow.servicenow.snow_record:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        lookup_field: name
+        number: "test-{{ name_prefix }}-0022"
+        data:
+          short_description: comment1
+        state: present
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.changed
+
+    - name: test update, find updated record
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        query:
+          name: "test-{{ name_prefix }}-0022"
+        <<: *login
+      register: result
+
+    - assert:
+        that:
+          - result.record is defined
+          - result.record|length == 1
+          - result.record[0].name is defined
+          - result.record[0].name == "test-{{ name_prefix }}-0022"
+          - result.record[0].short_description is defined
+          - result.record[0].short_description == "comment1"
+
+    # search
+    - name: test find one record
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        query:
+          name: test-{{ name_prefix }}-0022
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.record|length == 1
+          - result.record[0].name is defined
+          - result.record[0].name == "test-{{ name_prefix }}-0022"
+
+    - name: test find one record, return_fields
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        return_fields:
+          - name
+          - short_description
+        query:
+          name: test-{{ name_prefix }}-0011
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.record|length == 1
+          - result.record[0]|length == 2
+          - result.record[0].name is defined
+          - result.record[0].short_description is defined
+
+    - name: test find one out of many record 
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        query:
+          name: test-{{ name_prefix }}-0011
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.record|length == 1
+          - result.record[0].name == "test-{{ name_prefix }}-0011"
+          - result.record[0].model_id is defined
+          - result.record[0].model_id.link is defined
+
+    - name: test find one out of many record with display_value=True
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        display_value: True
+        query:
+          name: test-{{ name_prefix }}-0011
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.record|length == 1
+          - result.display_value
+          - not result.exclude_reference_link
+          - result.record[0].name == "test-{{ name_prefix }}-0011"
+          - result.record[0].sys_domain is defined
+          - result.record[0].sys_domain.display_value is defined
+          - result.record[0].sys_domain.display_value == "global"
+
+    - name: test find one out of many record with display_value=True exclude_reference_link=True
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        display_value: True
+        exclude_reference_link: True
+        query:
+          name: test-{{ name_prefix }}-0011
+        <<: *login
+      register: result
+ 
+    - assert:
+        that:
+          - result.display_value
+          - result.exclude_reference_link
+          - result.record|length == 1
+          - result.record[0].name == "test-{{ name_prefix }}-0011"
+          - result.record[0].model_id is defined
+          - result.record[0].model_id == "Unknown"
+
+    - name: test find only 2 records out of many 
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        query:
+          AND:
+            contains:
+              name: "test-{{ name_prefix }}-001"
+        <<: *login
+      register: result
+
+    - assert:
+        that:
+          - result.record|length == 2
+
+    - name: test find many, want only 3
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        max_records: 3
+        query:
+          AND:
+            contains:
+              name: "test-{{ name_prefix }}"
+        <<: *login
+      register: result
+
+    - assert:
+        that:
+          - result.record|length == 3
+
+    # remove
+    - name: remove record
+      servicenow.servicenow.snow_record:
+        state: absent
+        table: cmdb_ci_server
+        instance: "{{ sn_instance }}"
+        number: "test-{{ name_prefix }}-00{{ item }}"
+        lookup_field: name
+        <<: *login
+      loop: [11, 12, 21, 22]
+
+    # search result is empty
+    - name: test find no record
+      servicenow.servicenow.snow_record_find:
+        host: "{{ sn_instance }}.service-now.com"
+        table: cmdb_ci_server
+        query:
+          AND:
+            contains:
+              name: "test-{{ name_prefix }}"
+        <<: *login
+      register: result
+
+    - assert:
+        that:
+          - result.record|length == 0

@@ -1,3 +1,0 @@
-major_changes:
-- use new API for pysnow >=0.6.0
-- add new tests (find with no result, search many)

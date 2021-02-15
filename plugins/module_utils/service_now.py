@@ -24,7 +24,7 @@ except ImportError:
 
 class ServiceNowModule(AnsibleModule):
 
-    def __init__(self, required_together, mutually_exclusive, required_one_of, *args, **kwargs):
+    def __init__(self, required_together=None, mutually_exclusive=None, required_one_of=None, *args, **kwargs):
         ''' Constructor - This module mediates interactions with Service Now.
 
         :module: ServiceNowModule extended from AnsibleModule.

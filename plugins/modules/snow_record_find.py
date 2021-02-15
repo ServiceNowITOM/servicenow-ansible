@@ -54,7 +54,7 @@ requirements:
 author:
     - Tim Rightnour (@garbled1)
 extends_documentation_fragment:
-- servicenow.servicenow.service_now.documentation
+- n3pjk.servicenow.service_now.documentation
 
 '''
 

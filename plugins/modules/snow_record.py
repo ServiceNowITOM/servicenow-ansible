@@ -5,10 +5,10 @@
 # Copyright: (c) 2017, Tim Rightnour <thegarbledone@gmail.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-import os
 from __future__ import absolute_import, division, print_function
 from ansible.module_utils._text import to_bytes, to_native
 from n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowModule
+import os
 __metaclass__ = type
 
 
@@ -60,7 +60,7 @@ requirements:
 author:
     - Tim Rightnour (@garbled1)
 extends_documentation_fragment:
-- servicenow.servicenow.service_now.documentation
+- n3pjk.servicenow.service_now.documentation
 
 '''
 

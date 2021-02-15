@@ -24,21 +24,21 @@ except ImportError:
 
 class ServiceNowModule(AnsibleModule):
 
-    def __init__(self, required_together=None, mutually_exclusive=None, required_one_of=None, *args, **kwargs):
+    def __init__(self, mutually_exclusive=None, required_one_of=None, *args, **kwargs):
         ''' Constructor - This module mediates interactions with Service Now.
 
         :module: ServiceNowModule extended from AnsibleModule.
         '''
         # Initialize instance arguments
-        self._required_together = [
-            ['username', 'password'],
-            ['username', 'password', 'client_id', 'client_secret'],
-            ['username', 'password', 'client_id', 'client_secret', 'token'],
-        ]
-        if required_together is None:
-            self.required_together = self._required_together
-        else:
-            self.required_together.append(self._required_together)
+        #self._required_together = [
+        #    ['username', 'password'],
+        #    ['username', 'password', 'client_id', 'client_secret'],
+        #    ['username', 'password', 'client_id', 'client_secret', 'token'],
+        #]
+        #if required_together is None:
+        #    self.required_together = self._required_together
+        #else:
+        #    self.required_together.append(self._required_together)
 
         self._mutually_exclusive = [
             ['host', 'instance'],
@@ -58,7 +58,7 @@ class ServiceNowModule(AnsibleModule):
 
         # Initialize AnsibleModule superclass before params
         super(ServiceNowModule, self).__init__(
-            required_together=self.required_together,
+            #required_together=self.required_together,
             mutually_exclusive=self.mutually_exclusive,
             required_one_of=self.required_one_of,
             *args,

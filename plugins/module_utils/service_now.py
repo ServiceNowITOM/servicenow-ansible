@@ -30,31 +30,31 @@ class ServiceNowModule(AnsibleModule):
         :module: ServiceNowModule extended from AnsibleModule.
         '''
         # Initialize instance arguments
-        _required_together = [
+        self._required_together = [
             ['username', 'password'],
             ['username', 'password', 'client_id', 'client_secret'],
             ['username', 'password', 'client_id', 'client_secret', 'token'],
         ]
         if required_together is None:
-            required_together = _required_together
+            self.required_together = self._required_together
         else:
-            required_together.append(_required_together)
+            self.required_together.append(self._required_together)
 
-        _mutually_exclusive = [
+        self._mutually_exclusive = [
             ['host', 'instance'],
         ]
         if mutually_exclusive is None:
-            mutually_exclusive = _mutually_exclusive
+            self.mutually_exclusive = self._mutually_exclusive
         else:
-            mutually_exclusive.append(_mutually_exclusive)
+            self.mutually_exclusive.append(self._mutually_exclusive)
 
-        _required_one_of = [
+        self._required_one_of = [
             ['host', 'instance'],
         ]
         if required_one_of is None:
-            required_one_of = _required_one_of
+            self.required_one_of = self._required_one_of
         else:
-            required_one_of.append(_required_one_of)
+            self.required_one_of.append(self._required_one_of)
 
         # Output of module
         self.result = {}
@@ -67,9 +67,9 @@ class ServiceNowModule(AnsibleModule):
 
         # Initialize AnsibleModule superclass before params
         super(ServiceNowModule, self).__init__(
-            required_together,
-            mutually_exclusive,
-            required_one_of,
+            self.required_together,
+            self.mutually_exclusive,
+            self.required_one_of,
             *args,
             **kwargs
         )

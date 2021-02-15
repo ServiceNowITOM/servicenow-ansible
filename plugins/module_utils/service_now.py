@@ -30,36 +30,19 @@ class ServiceNowModule(AnsibleModule):
         :module: ServiceNowModule extended from AnsibleModule.
         '''
         # Initialize instance arguments
-        if required_together is None:
-            required_together = [
-                ['username', 'password'],
-                ['username', 'password', 'client_id', 'client_secret'],
-                ['username', 'password', 'client_id', 'client_secret', 'token'],
-            ]
-        else:
-            required_together += [
-                ['username', 'password'],
-                ['username', 'password', 'client_id', 'client_secret'],
-                ['username', 'password', 'client_id', 'client_secret', 'token'],
-            ]
+        required_together.append([
+            ['username', 'password'],
+            ['username', 'password', 'client_id', 'client_secret'],
+            ['username', 'password', 'client_id', 'client_secret', 'token'],
+        ])
 
-        if mutually_exclusive is None:
-            mutually_exclusive = [
-                ['host', 'instance'],
-            ]
-        else:
-            mutually_exclusive += [
-                ['host', 'instance'],
-            ]
+        mutually_exclusive.append([
+            ['host', 'instance'],
+        ])
 
-        if required_one_of is None:
-            required_one_of = [
-                ['host', 'instance'],
-            ]
-        else:
-            required_one_of += [
-                ['host', 'instance'],
-            ]
+        required_one_of.append([
+            ['host', 'instance'],
+        ])
 
         # Output of module
         self.result = {}

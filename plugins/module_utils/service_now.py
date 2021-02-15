@@ -76,6 +76,7 @@ class ServiceNowModule(AnsibleModule):
 
         if not HAS_PYSNOW:
             AnsibleModule.fail_json(
+                self,
                 msg=missing_required_lib('pysnow'),
                 exception=PYSNOW_IMP_ERR
             )

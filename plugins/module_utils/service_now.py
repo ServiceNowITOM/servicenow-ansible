@@ -56,6 +56,15 @@ class ServiceNowModule(AnsibleModule):
         else:
             self.required_one_of.append(self._required_one_of)
 
+        # Initialize AnsibleModule superclass before params
+        super(ServiceNowModule, self).__init__(
+            required_together=self.required_together,
+            mutually_exclusive=self.mutually_exclusive,
+            required_one_of=self.required_one_of,
+            *args,
+            **kwargs
+        )
+
         # Output of module
         self.result = {}
 
@@ -64,15 +73,6 @@ class ServiceNowModule(AnsibleModule):
 
         # Authenticated connection
         self.connection = None
-
-        # Initialize AnsibleModule superclass before params
-        super(ServiceNowModule, self).__init__(
-            self.required_together,
-            self.mutually_exclusive,
-            self.required_one_of,
-            *args,
-            **kwargs
-        )
 
         if not HAS_PYSNOW:
             AnsibleModule.fail_json(

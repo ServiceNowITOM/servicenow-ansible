@@ -71,7 +71,7 @@ ip_address,fqdn,host_name,sys_class_name,name</td>
 <td><b>Default:</b><br> 
 </td>
 <td></td>
-<td> Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries. </td>
+<td> Filter results with sysparm_query encoded query string syntax. Operators available for filters and queries found <a href="https://docs.servicenow.com/search?q=Available+Filters+Queries"here</a>. </td>
 </tr>
 <tr>
 <td><b>proxy</b></br>

@@ -73,7 +73,9 @@ DOCUMENTATION = r'''
             type: list
             default: 'ip_address,fqdn,host_name,name'
         filter_results:
-            description: Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries.
+            description:
+             - Filter results with sysparm_query encoded query string syntax.
+             - Operators available for filters and queries found here -> https://docs.servicenow.com/search?q=Available+Filters+Queries
             type: string
             default: ''
         proxy:

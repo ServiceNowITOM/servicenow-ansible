@@ -5,9 +5,9 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
 import requests
 import traceback
+import logging
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
 from ansible_collections.n3pjk.servicenow.plugins.module_utils.bearerauth import BearerAuth
@@ -29,6 +29,11 @@ class ServiceNowModule(AnsibleModule):
 
         :module: ServiceNowModule extended from AnsibleModule.
         '''
+
+        # Turn on debugging
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug("Debug on for pysnow in ServiceNowModule.")
+
         # Initialize instance arguments
         self._required_together = [
             ['username', 'password'],

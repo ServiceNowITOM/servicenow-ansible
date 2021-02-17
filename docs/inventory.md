@@ -168,6 +168,9 @@ keyed_groups:
     prefix: 'tag'
 
 plugin: servicenow.servicenow.now
+instance: dev89007
+username: admin
+password: password
 table: cmdb_ci_netgear
 selection_order: fqdn
 fields: [name,host_name,fqdn,ip_address,sys_class_name,operational_status]

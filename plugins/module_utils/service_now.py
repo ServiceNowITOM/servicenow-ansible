@@ -184,7 +184,12 @@ class ServiceNowModule(AnsibleModule):
     def _auth_token(self):
         try:
             s = requests.Session()
-            s.auth = BearerAuth(self.token)
+            s.headers.update(
+                {
+                    "authorization": 'Bearer {0}'.format(str(self.token))
+                }
+            )
+#           s.auth = BearerAuth(self.token)
             self.connection = pysnow.Client(
                 instance=self.instance,
                 host=self.host,

@@ -295,8 +295,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             # set variables for host
             for k in record.keys():
-                k = k.replace('.', '_')
-                self.inventory.set_variable(host_name, 'sn_%s' % k, record[k])
+                k2 = k.replace('.', '_')
+                self.inventory.set_variable(host_name, 'sn_%s' % k2, record[k])
 
             # add relationship based groups
             if enhanced and enhanced_groups:

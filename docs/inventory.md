@@ -167,4 +167,13 @@ keyed_groups:
   - key: sn_tags | lower
     prefix: 'tag'
 
+plugin: servicenow.servicenow.now
+table: cmdb_ci_netgear
+selection_order: fqdn
+fields: [name,host_name,fqdn,ip_address,sys_class_name,operational_status]
+filter_results: operational_status=1^fqdnISNOTEMPTY^manufacturerSTARTSWITHCisco
+keyed_groups:
+  - key: sn_operational_status | lower
+    prefix: 'op_status'
+
 ```

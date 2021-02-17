@@ -186,7 +186,7 @@ class ServiceNowModule(AnsibleModule):
             s = requests.Session()
             s.headers.update(
                 {
-                    "authorization": 'Bearer {0}'.format(str(self.token))
+                    "authorization": "Bearer '{0}'".format(str(self.token))
                 }
             )
 #           s.auth = BearerAuth(self.token)

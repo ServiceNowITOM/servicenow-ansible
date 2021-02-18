@@ -73,7 +73,9 @@ DOCUMENTATION = r'''
             type: list
             default: 'ip_address,fqdn,host_name,name'
         filter_results:
-            description: Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries.
+            description:
+             - Filter results with sysparm_query encoded query string syntax.
+             - Complete list of operators available for filters and queries found here -> https://docs.servicenow.com/search?q=Available+Filters+Queries
             type: string
             default: ''
         proxy:
@@ -136,6 +138,19 @@ compose:
 keyed_groups:
   - key: sn_tags | lower
     prefix: 'tag'
+
+# Using table, selection_order, filter_results
+plugin: servicenow.servicenow.now
+instance: dev89007
+username: admin
+password: password
+table: cmdb_ci_netgear
+selection_order: fqdn
+fields: [name,host_name,fqdn,ip_address,sys_class_name,operational_status]
+filter_results: operational_status=1^fqdnISNOTEMPTY^manufacturerSTARTSWITHCisco
+keyed_groups:
+  - key: sn_operational_status | lower
+    prefix: 'op_status'
 '''
 
 import netaddr

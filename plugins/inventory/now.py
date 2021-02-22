@@ -139,6 +139,19 @@ compose:
 keyed_groups:
   - key: sn_tags | lower
     prefix: 'tag'
+
+# Use related table field
+plugin: servicenow.servicenow.now
+instance: dev89007
+username: admin
+password: password
+table: cmdb_ci_netgear
+selection_order: fqdn
+fields: [name,host_name,fqdn,model_id.model_number]
+filter_results: operational_status=1^fqdnISNOTEMPTY^manufacturerSTARTSWITHCisco
+keyed_groups:
+  - key: sn_model_id_model_number | lower
+    prefix: 'model'
 '''
 
 import netaddr

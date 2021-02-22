@@ -65,7 +65,10 @@ DOCUMENTATION = r'''
             type: string
             default: cmdb_ci_server
         fields:
-            description: Comma seperated string providing additional table columns to add as host vars to each inventory host.
+            description:
+            - Comma seperated string providing additional table columns to add as host vars to each inventory host.
+            - Related table fields are valid.  Usual period separator is changed to underscore.
+            - e.g. sn_model_id.model_name -> sn_model_id_model_name
             type: list
             default: 'ip_address,fqdn,host_name,sys_class_name,name'
         selection_order:
@@ -280,7 +283,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             # set variables for host
             for k in record.keys():
-                self.inventory.set_variable(host_name, 'sn_%s' % k, record[k])
+                k2 = k.replace('.', '_')
+                self.inventory.set_variable(host_name, 'sn_%s' % k2, record[k])
 
             # add relationship based groups
             if enhanced and enhanced_groups:

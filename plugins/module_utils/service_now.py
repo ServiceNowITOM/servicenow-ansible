@@ -10,7 +10,7 @@ import traceback
 import logging
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
-from ansible_collections.n3pjk.servicenow.plugins.module_utils.bearerauth import BearerAuth
+from ansible_collections.n3pjk.servicenow.plugins.module_utils.httpbearerauth import HTTPBearerAuth
 
 # Pull in pysnow
 HAS_PYSNOW = False
@@ -97,7 +97,7 @@ class ServiceNowModule(AnsibleModule):
         self.password = self.params.get('password')
         self.client_id = self.params.get('client_id')
         self.client_secret = self.params.get('client_secret')
-        self.token = self.params.get('token')
+        self.session['token'] = self.params.get('token')
 
         # Turn on debug if not specified, but ANSIBLE_DEBUG is set
         self.module_debug = {}
@@ -184,7 +184,7 @@ class ServiceNowModule(AnsibleModule):
     def _auth_token(self):
         try:
             s = requests.Session()
-            s.auth = BearerAuth(self.token)
+            s.auth = HTTPBearerAuth(self.session['token'])
             self.connection = pysnow.Client(
                 instance=self.instance,
                 host=self.host,

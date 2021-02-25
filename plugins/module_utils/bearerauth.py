@@ -15,5 +15,5 @@ class BearerAuth(requests.auth.AuthBase):
         self.token = token
 
     def __call__(self, r):
-        r.headers["authorization"] = "Bearer " + self.token
+        r.headers["authorization"] = "Bearer '{0}'".format(str(self.token))
         return r

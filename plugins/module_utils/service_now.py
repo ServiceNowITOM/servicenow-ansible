@@ -274,7 +274,7 @@ class ServiceNowModule(AnsibleModule):
             self.token = self._okta_get_token()
         else:
             self._okta_inspect_token()
-            if self.result['okta']['active'] is not 'true':
+            if self.result['okta']['active'] != 'true':
                 self.token = self._okta_get_token()
         self._auth_token()
 

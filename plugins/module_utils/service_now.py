@@ -72,8 +72,23 @@ class ServiceNowModule(AnsibleModule):
         # Output of module
         self.result = {}
 
-        # Session tracking information
-        self.session = {'token': None}
+        # Okta information
+        self.okta = {
+            'domain': None,
+            'server': None,
+            'mode': None,
+            'scope': None,
+            # Endpoints
+            # /authorize is used for browser-based auth, so it and /keys are not
+            # needed. We don't maintain state, so ignore /logout and /revoke too.
+            # Nor do we need any well-known endpoints.
+            'url': {
+                'base': None,
+                'introspect': None,
+                'token': None,
+                'user': None,
+            },
+        }
 
         # Authenticated connection
         self.connection = None
@@ -88,16 +103,19 @@ class ServiceNowModule(AnsibleModule):
         # Params
         #
         # REQUIRED: Their absence will chuck a rod
-        #   None
+        self.auth = self.params['auth']
         # OPTIONAL: Use params.get() to gracefully fail
         self.instance = self.params.get('instance')
         self.host = self.params.get('host')
-        self.auth = self.params.get('auth')
         self.username = self.params.get('username')
         self.password = self.params.get('password')
         self.client_id = self.params.get('client_id')
         self.client_secret = self.params.get('client_secret')
-        self.session['token'] = self.params.get('token')
+        self.token = self.params.get('token')
+        # OKTA
+        self.okta['domain'] = self.params.get('okta_domain')
+        self.okta['server'] = self.params.get('okta_server')
+        self.okta['scope'] = self.params.get('okta_scope')
 
         # Turn on debug if not specified, but ANSIBLE_DEBUG is set
         self.module_debug = {}
@@ -166,10 +184,10 @@ class ServiceNowModule(AnsibleModule):
                     str(detail)
                 )
             )
-        if not self.session['token']:
+        if not self.token:
             # No previous token exists, Generate new.
             try:
-                self.session['token'] = self.connection.generate_token(
+                self.token = self.connection.generate_token(
                     self.username,
                     self.password
                 )
@@ -179,12 +197,12 @@ class ServiceNowModule(AnsibleModule):
                         str(detail)
                     )
                 )
-            self.connection.set_token(self.session['token'])
+            self.connection.set_token(self.token)
 
     def _auth_token(self):
         try:
             s = requests.Session()
-            s.auth = HTTPBearerAuth(self.session['token'])
+            s.auth = HTTPBearerAuth(self.token)
             self.connection = pysnow.Client(
                 instance=self.instance,
                 host=self.host,
@@ -198,10 +216,47 @@ class ServiceNowModule(AnsibleModule):
             )
 
     def _auth_okta(self):
-        self.fail(msg='Okta authentication module not yet implemented.')
+        if self.okta['domain']:
+            self.okta['url']['base'] = "https://{0}/oauth2".format(
+                self.okta['domain'])
+            # Okta in Single Sign-On mode
+            self.okta['mode'] = 'SSO'
+        else:
+            self.fail(msg='auth=okta requires okta_domain be specified.')
+        if self.okta['server']:
+            self.okta['url']['base'] = "{0}/{1}".format(
+                self.okta['url']['base'], self.okta['server'])
+            # Okta in Custom Authorization Server mode
+            self.okta['mode'] = 'CAS'
+        self.okta['url']['introspect'] = "{0}/v1/introspect".format(
+            self.okta['url']['base'])
+        self.okta['url']['token'] = "{0}/v1/token".format(
+            self.okta['url']['base'])
+        self.okta['url']['user'] = "{0}/v1/userinfo".format(
+            self.okta['url']['base'])
+
+        if self.token is None:
+            r = requests.post(
+                self.okta['url']['token'],
+                auth=(self.client_id, self.client_secret),
+                headers={
+                    'accept': 'application/json',
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                data={
+                    'grant_type': 'password',
+                    'username': self.username,
+                    'password': self.password,
+                    'scope': self.okta['scope']
+                }
+            )
+            r.raise_for_status()
+            self.result['json'] = r.json()
+            self.token = self.result['json']['id_token']
+        self._auth_token()
 
     def _token_updater(self, new_token):
-        self.session['token'] = new_token
+        self.token = new_token
         self.connection = pysnow.OAuthClient(
             client_id=self.client_id,
             client_secret=self.client_secret,
@@ -210,7 +265,7 @@ class ServiceNowModule(AnsibleModule):
             host=self.host
         )
         try:
-            self.connection.set_token(self.session['token'])
+            self.connection.set_token(self.token)
         except pysnow.exceptions.MissingToken:
             self.module.fail(msg="Token is missing")
         except Exception as detail:
@@ -329,6 +384,32 @@ class ServiceNowModule(AnsibleModule):
                 fallback=(
                     env_fallback,
                     ['SN_TOKEN']
+                )
+            ),
+            okta_domain=dict(
+                type='str',
+                required=False,
+                fallback=(
+                    env_fallback,
+                    ['OKTA_DOMAIN']
+                )
+            ),
+            okta_server=dict(
+                type='str',
+                required=False,
+                fallback=(
+                    env_fallback,
+                    ['OKTA_SERVER']
+                )
+            ),
+            # No codes means offline_access is not available.
+            okta_scope=dict(
+                type='list',
+                elements='str',
+                required=False,
+                fallback=(
+                    env_fallback,
+                    ['OKTA_SCOPE']
                 )
             ),
         )

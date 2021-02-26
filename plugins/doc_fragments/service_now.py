@@ -90,7 +90,6 @@ options:
       description:
       - A list of scopes to be included in the access token.
       - Supported scopes for this application are: address, email, groups, openid, phone, profile.
-      - 'openid' must be one of the scopes in the list.
       required: false
       type: list
 '''

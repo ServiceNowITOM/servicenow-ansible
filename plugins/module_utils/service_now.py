@@ -251,8 +251,25 @@ class ServiceNowModule(AnsibleModule):
                 }
             )
             r.raise_for_status()
-            self.result['json'] = r.json()
-            self.token = self.result['json']['id_token']
+            self.result['okta'] = r.json()
+            self.token = self.result['okta']['id_token']
+        r = requests.post(
+            self.okta['url']['introspect'],
+            auth=(self.client_id, self.client_secret),
+            headers={
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            params={
+                'token': self.token,
+                'token_type_hint': 'id_token'
+            }
+        )
+        r.raise_for_status()
+        if 'okta' not in self.result:
+            self.result['okta'] = r.json()
+        else:
+            self.result['okta'].update(r.json())
         self._auth_token()
 
     def _token_updater(self, new_token):

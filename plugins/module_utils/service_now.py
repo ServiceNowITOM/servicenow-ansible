@@ -317,7 +317,9 @@ class ServiceNowModule(AnsibleModule):
         if 'access_token' in self.result['okta']:
             r = requests.post(
                 self.okta['url']['user'],
-                auth=HTTPBearerAuth(self.result['okta']['access_token'])
+                headers={
+                    'authorization': 'Bearer {0}'.format(self.result['okta']['access_token'])
+                }
             )
             self._okta_response(r)
 

@@ -86,7 +86,6 @@ class ServiceNowModule(AnsibleModule):
                 'base': None,
                 'introspect': None,
                 'token': None,
-                'user': None,
             },
         }
 
@@ -272,11 +271,12 @@ class ServiceNowModule(AnsibleModule):
 
         if self.token is None:
             self.token = self._okta_get_token()
+            self._okta_inspect_token()
         else:
             self._okta_inspect_token()
             if self.result['okta']['active'] != 'true':
                 self.token = self._okta_get_token()
-        self._okta_inspect_token()
+                self._okta_inspect_token()
         self._auth_token()
 
     def _okta_get_token(self):
@@ -295,8 +295,6 @@ class ServiceNowModule(AnsibleModule):
             }
         )
         self._okta_response(r)
-#       self._okta_inspect_token()
-        self._okta_inspect_user()
         return self.result['okta']['id_token']
 
     def _okta_inspect_token(self):
@@ -311,13 +309,6 @@ class ServiceNowModule(AnsibleModule):
                 'token': self.token,
                 'token_type_hint': 'id_token'
             }
-        )
-        self._okta_response(r)
-
-    def _okta_inspect_user(self):
-        r = requests.post(
-            self.okta['url']['user'],
-            auth=HTTPBearerAuth(self.result['okta']['access_token'])
         )
         self._okta_response(r)
 

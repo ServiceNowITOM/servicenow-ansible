@@ -137,6 +137,9 @@ class ServiceNowModule(AnsibleModule):
         else:
             self.module_debug.update(key=kwargs)
 
+    # Login
+    #
+    # Connect using the method specified by 'auth'
     def _login(self):
         self.result['changed'] = False
         if self.params['auth'] == 'basic':
@@ -154,6 +157,9 @@ class ServiceNowModule(AnsibleModule):
                 )
             )
 
+    # Basic
+    #
+    # Connect using username and password
     def _auth_basic(self):
         try:
             self.connection = pysnow.Client(
@@ -169,12 +175,15 @@ class ServiceNowModule(AnsibleModule):
                 )
             )
 
+    # OAuth
+    #
+    # Connect using client id and secret in addition to Basic
     def _auth_oauth(self):
         try:
             self.connection = pysnow.OAuthClient(
                 client_id=self.client_id,
                 client_secret=self.client_secret,
-                token_updater=self._token_updater,
+                token_updater=self._oauth_token_updater,
                 instance=self.instance,
                 host=self.host
             )
@@ -199,6 +208,29 @@ class ServiceNowModule(AnsibleModule):
                 )
             self.connection.set_token(self.token)
 
+    def _oauth_token_updater(self, new_token):
+        self.token = new_token
+        self.connection = pysnow.OAuthClient(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            token_updater=self._token_updater,
+            instance=self.instance,
+            host=self.host
+        )
+        try:
+            self.connection.set_token(self.token)
+        except pysnow.exceptions.MissingToken:
+            self.module.fail(msg="Token is missing")
+        except Exception as detail:
+            self.module.fail(
+                msg='Could not refresh token: {0}'.format(
+                    str(detail)
+                )
+            )
+
+    # Token
+    #
+    # Use a supplied token instead of client id and secret.
     def _auth_token(self):
         try:
             s = requests.Session()
@@ -215,6 +247,9 @@ class ServiceNowModule(AnsibleModule):
                 )
             )
 
+    # Okta
+    #
+    # Use the Okta OpenID protocol to obtain a bearer token.
     def _auth_okta(self):
         if self.okta['domain']:
             self.okta['url']['base'] = "https://{0}/oauth2".format(
@@ -236,23 +271,34 @@ class ServiceNowModule(AnsibleModule):
             self.okta['url']['base'])
 
         if self.token is None:
-            r = requests.post(
-                self.okta['url']['token'],
-                auth=(self.client_id, self.client_secret),
-                headers={
-                    'accept': 'application/json',
-                    'content-type': 'application/x-www-form-urlencoded'
-                },
-                data={
-                    'grant_type': 'password',
-                    'username': self.username,
-                    'password': self.password,
-                    'scope': self.okta['scope']
-                }
-            )
-            r.raise_for_status()
-            self.result['okta'] = r.json()
-            self.token = self.result['okta']['id_token']
+            self.token = self._okta_get_token()
+        else:
+            self._okta_inspect_token()
+            if self.result['okta']['active'] is not 'true':
+                self.token = self._okta_get_token()
+        self._auth_token()
+
+    def _okta_get_token(self):
+        r = requests.post(
+            self.okta['url']['token'],
+            auth=(self.client_id, self.client_secret),
+            headers={
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            data={
+                'grant_type': 'password',
+                'username': self.username,
+                'password': self.password,
+                'scope': self.okta['scope']
+            }
+        )
+        self._okta_response(r)
+        self._okta_inspect_token()
+        self._okta_inspect_user()
+        return self.result['okta']['id_token']
+
+    def _okta_inspect_token(self):
         r = requests.post(
             self.okta['url']['introspect'],
             auth=(self.client_id, self.client_secret),
@@ -265,32 +311,26 @@ class ServiceNowModule(AnsibleModule):
                 'token_type_hint': 'id_token'
             }
         )
+        self._okta_response(r)
+
+    def _okta_inspect_user(self):
+        if 'access_token' in self.result['okta']:
+            r = requests.post(
+                self.okta['url']['user'],
+                auth=HTTPBearerAuth(self.result['okta']['access_token'])
+            )
+            self._okta_response(r)
+
+    def _okta_response(self, r):
         r.raise_for_status()
         if 'okta' not in self.result:
             self.result['okta'] = r.json()
         else:
             self.result['okta'].update(r.json())
-        self._auth_token()
 
-    def _token_updater(self, new_token):
-        self.token = new_token
-        self.connection = pysnow.OAuthClient(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            token_updater=self._token_updater,
-            instance=self.instance,
-            host=self.host
-        )
-        try:
-            self.connection.set_token(self.token)
-        except pysnow.exceptions.MissingToken:
-            self.module.fail(msg="Token is missing")
-        except Exception as detail:
-            self.module.fail(
-                msg='Could not refresh token: {0}'.format(
-                    str(detail)
-                )
-            )
+    #
+    # Extend AnsibleModule methods
+    #
 
     def fail(self, msg):
         if self.log_level == 'debug':

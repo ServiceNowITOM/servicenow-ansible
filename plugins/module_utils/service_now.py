@@ -276,6 +276,7 @@ class ServiceNowModule(AnsibleModule):
             self._okta_inspect_token()
             if self.result['okta']['active'] != 'true':
                 self.token = self._okta_get_token()
+        self._okta_inspect_token()
         self._auth_token()
 
     def _okta_get_token(self):
@@ -314,14 +315,11 @@ class ServiceNowModule(AnsibleModule):
         self._okta_response(r)
 
     def _okta_inspect_user(self):
-        if 'access_token' in self.result['okta']:
-            r = requests.post(
-                self.okta['url']['user'],
-                headers={
-                    'authorization': 'Bearer {0}'.format(self.result['okta']['access_token'])
-                }
-            )
-            self._okta_response(r)
+        r = requests.post(
+            self.okta['url']['user'],
+            auth=HTTPBearerAuth(self.result['okta']['access_token'])
+        )
+        self._okta_response(r)
 
     def _okta_response(self, r):
         r.raise_for_status()

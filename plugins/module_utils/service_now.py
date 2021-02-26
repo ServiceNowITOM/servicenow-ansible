@@ -294,8 +294,8 @@ class ServiceNowModule(AnsibleModule):
             }
         )
         self._okta_response(r)
-        self._okta_inspect_token()
-#       self._okta_inspect_user()
+#       self._okta_inspect_token()
+        self._okta_inspect_user()
         return self.result['okta']['id_token']
 
     def _okta_inspect_token(self):
@@ -313,15 +313,15 @@ class ServiceNowModule(AnsibleModule):
         )
         self._okta_response(r)
 
-#   def _okta_inspect_user(self):
-#       if 'access_token' in self.result['okta']:
-#           r = requests.post(
-#               self.okta['url']['user'],
-#               headers={
-#                   'authorization': 'Bearer {0}'.format(self.result['okta']['access_token'])
-#               }
-#           )
-#           self._okta_response(r)
+    def _okta_inspect_user(self):
+        if 'access_token' in self.result['okta']:
+            r = requests.post(
+                self.okta['url']['user'],
+                headers={
+                    'authorization': 'Bearer {0}'.format(self.result['okta']['access_token'])
+                }
+            )
+            self._okta_response(r)
 
     def _okta_response(self, r):
         r.raise_for_status()

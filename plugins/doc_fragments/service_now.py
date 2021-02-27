@@ -16,11 +16,17 @@ options:
       - Basic authentication uses user name and password.
       - OAuth authentication uses a client id and secret in addition to Basic authentication.
       - Token authentication uses a bearer token in addition to OAuth authentication.
-      - Okta authentication, based on OpenID, is used to obtain a bearer token.
+      - OpenID Connect authentication, an extension of OAuth 2.0, uses a provider, like Okta, to obtain a bearer token.
       - If the vaule is not specified in the task, the value of environment variable C(SN_AUTH) will be used instead.
-      choices: ['basic', 'oauth', 'token', 'okta']
+      choices: ['basic', 'oauth', 'token', 'openid']
       type: str
       default: basic
+    raise_on_empty:
+      description:
+      - If set to false, will not cause a SNOW method to raise an exception should it return no records.
+      - This is particurlarly useful in snow_record_find, when not sure if any record exists.
+      type: bool
+      default: True
     instance:
       description:
       - The ServiceNow instance name, without the domain, service-now.com.
@@ -69,27 +75,29 @@ options:
       - If the value is not specified in the task, the value of environment variable C(SN_TOKEN) will be used instead.
       required: false
       type: str
-    okta_domain:
+    openid_issuer:
       description:
-      - The Okta Org Authorization Server when Okta is serving as the authorization server for itself in SSO mode.
-      - This is required if 'auth' is set to 'okta'.
-      - grant_type of 'password' is only supported.
-      - Introspection and token auth methods only use 'client_secret_basic'.
-      - If the value is not specified in the task, the value of environment variable C(OKTA_DOMAIN) will be used instead.
+      - The URL for your organization's OpenID Connect provider.
+      - Okta, an OpenID provider, supports Single Sign-On with a url like 'https://yourorg.oktapreview.com/oauth2'.
+      - Okta supports application-level authentication using a url like 'https://yourorg.oktapreview.com/oauth2/TH151s50m3L0ngSTr1NG'.
+      - If the value is not specified in the task, the value of environment variable C(OPENID_ISSUER) will be used instead.
       required: false
       type: str
-    okta_server:
-      description:
-      - The Custom Authorization Server id, if Okta is the identity platform for you app or API.
-      - This is not needed in SSO mode.
-      - A developer account can use 'default' for this id.
-      - If the value is not specified in the task, the value of environment variable C(OKTA_SERVER) will be used instead.
-      required: false
-      type: str
-    okta_scope:
+    openid_scope:
       description:
       - A list of scopes to be included in the access token.
       - Supported scopes for this application are: address, email, groups, openid, phone, profile.
+      - One of the specified scopes must be 'openid'.
+      - If the value is not specified in the task, the value of environment variable C(OPENID_SCOPE) will be used instead.
       required: false
       type: list
+      default: 'openid email'
+    openid:
+      description:
+      - If the result of a previous SNOW method, using OpenID, was registered, supply the C(openid) key, from the result.
+      - The C(openid) key contains a dictionary with the bearer token, which, if still valid, can be reused.
+      - If the bearer token is no longer valid, the dictionary includes all of the previously supplied C(openid_) fields needed to make a new token request.
+      - Any other credentials previously supplied, must be provided again.
+      required: false
+      type: dict
 '''

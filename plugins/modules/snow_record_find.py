@@ -71,6 +71,20 @@ EXAMPLES = r'''
       - number
       - opened_at
 
+- name: Search for incident assigned to group, explicitly using basic authentication, return specific fields, and suppress exception if not found
+  servicenow.servicenow.snow_record_find:
+    auth: basic
+    username: ansible_test
+    password: my_password
+    instance: dev99999
+    raise_on_empty: False
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+
 - name: Search for incident using host instead of instance
   servicenow.servicenow.snow_record_find:
     username: ansible_test
@@ -85,10 +99,59 @@ EXAMPLES = r'''
 
 - name: Using OAuth, search for incident assigned to group, return specific fields
   servicenow.servicenow.snow_record_find:
+    auth: oauth
     username: ansible_test
     password: my_password
     client_id: "1234567890abcdef1234567890abcdef"
     client_secret: "Password1!"
+    instance: dev99999
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+
+- name: Using a bearer token, search for incident assigned to group, return specific fields
+  servicenow.servicenow.snow_record_find:
+    auth: token
+    username: ansible_test
+    password: my_password
+    token: "y0urHorrend0u51yL0ngT0kenG0esH3r3..."
+    instance: dev99999
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+
+- name: Using OpenID, search for incident assigned to group, return specific fields
+  servicenow.servicenow.snow_record_find:
+    auth: openid
+    username: ansible_test
+    password: my_password
+    client_id: "1234567890abcdef1234567890abcdef"
+    client_secret: "Password1!"
+    openid_issuer: "https://yourorg.oktapreview.com/oauth2/TH151s50M3L0ngStr1NG"
+    openid_scope: "openid email"
+    instance: dev99999
+    table: incident
+    query:
+      assignment_group: d625dccec0a8016700a222a0f7900d06
+    return_fields:
+      - number
+      - opened_at
+  register: response
+
+- name: Using previous OpenID response, search for incident assigned to group, return specific fields
+  servicenow.servicenow.snow_record_find:
+    auth: openid
+    username: ansible_test
+    password: my_password
+    client_id: "1234567890abcdef1234567890abcdef"
+    client_secret: "Password1!"
+    openid: "{{ response['openid'] }}
     instance: dev99999
     table: incident
     query:

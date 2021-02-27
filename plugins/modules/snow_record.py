@@ -75,8 +75,21 @@ EXAMPLES = r'''
     table: sys_user
     lookup_field: sys_id
 
+- name: Grab a user record, explicitly using basic authentication and suppress exceptions if not found
+  servicenow.servicenow.snow_record:
+    auth: basic
+    raise_on_empty: False
+    username: ansible_test
+    password: my_password
+    instance: dev99999
+    state: present
+    number: 62826bf03710200044e0bfc8bcbe5df1
+    table: sys_user
+    lookup_field: sys_id
+
 - name: Grab a user record using OAuth
   servicenow.servicenow.snow_record:
+    auth: oauth
     username: ansible_test
     password: my_password
     client_id: "1234567890abcdef1234567890abcdef"
@@ -86,6 +99,49 @@ EXAMPLES = r'''
     number: 62826bf03710200044e0bfc8bcbe5df1
     table: sys_user
     lookup_field: sys_id
+
+- name: Grab a user record using a bearer token
+  servicenow.servicenow.snow_record:
+    auth: token
+    username: ansible_test
+    password: my_password
+    token: "y0urHorrend0u51yL0ngT0kenG0esH3r3..."
+    instance: dev99999
+    state: present
+    number: 62826bf03710200044e0bfc8bcbe5df1
+    table: sys_user
+    lookup_field: sys_id
+
+- name: Grab a user record using OpenID
+  servicenow.servicenow.snow_record:
+    auth: openid
+    username: ansible_test
+    password: my_password
+    client_id: "1234567890abcdef1234567890abcdef"
+    client_secret: "Password1!"
+    openid_issuer: "https://yourorg.oktapreview.com/TH151s50meL0ngSTr1NG"
+    openid_scope: "openid email"
+    instance: dev99999
+    state: present
+    number: 62826bf03710200044e0bfc8bcbe5df1
+    table: sys_user
+    lookup_field: sys_id
+  register: response
+
+- name: Grab another user record using previous OpenID response
+  servicenow.servicenow.snow_record:
+    auth: openid
+    username: ansible_test
+    password: my_password
+    client_id: "1234567890abcdef1234567890abcdef"
+    client_secret: "Password1!"
+    openid: "{{ response['openid'] }}"
+    instance: dev99999
+    state: present
+    number: 62826bf03710200044e0bfc8deadbeef
+    table: sys_user
+    lookup_field: sys_id
+  register: response
 
 - name: Create an incident
   servicenow.servicenow.snow_record:

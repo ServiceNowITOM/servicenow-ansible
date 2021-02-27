@@ -46,6 +46,8 @@ class ServiceNowModule(AnsibleModule):
 
         self._mutually_exclusive = [
             ['host', 'instance'],
+            ['openid_issuer', 'openid'],
+            ['openid_scope', 'openid']
         ]
         if mutually_exclusive is None:
             self.mutually_exclusive = self._mutually_exclusive
@@ -73,19 +75,14 @@ class ServiceNowModule(AnsibleModule):
         self.result = {}
 
         # Okta information
-        self.okta = {
-            'domain': None,
-            'server': None,
-            'mode': None,
+        self.openid = {
+            'iss': None,
             'scope': None,
-            # Endpoints
-            # /authorize is used for browser-based auth, so it and /keys are not
-            # needed. We don't maintain state, so ignore /logout and /revoke too.
-            # Nor do we need any well-known endpoints.
+            # Supported endpoints
             'url': {
-                'base': None,
                 'introspect': None,
                 'token': None,
+                'user': None,
             },
         }
 
@@ -103,6 +100,10 @@ class ServiceNowModule(AnsibleModule):
         #
         # REQUIRED: Their absence will chuck a rod
         self.auth = self.params['auth']
+        self.raise_on_empty = self.params['raise_on_empty']
+        if self.raise_on_empty == True:
+            self.raise_on_empty = None
+
         # OPTIONAL: Use params.get() to gracefully fail
         self.instance = self.params.get('instance')
         self.host = self.params.get('host')
@@ -111,10 +112,20 @@ class ServiceNowModule(AnsibleModule):
         self.client_id = self.params.get('client_id')
         self.client_secret = self.params.get('client_secret')
         self.token = self.params.get('token')
-        # OKTA
-        self.okta['domain'] = self.params.get('okta_domain')
-        self.okta['server'] = self.params.get('okta_server')
-        self.okta['scope'] = self.params.get('okta_scope')
+
+        # OpenID
+        if self.params.get('openid') is not None:
+            self.openid = self.params.get('openid')
+            self.token = self.openid['id_token']
+        else:
+            self.openid['iss'] = self.params.get('openid_issuer')
+            self.openid['scope'] = self.params.get('okta_scope')
+            self.openid['url']['introspect'] = "{0}/v1/introspect".format(
+                self.openid['iss'])
+            self.openid['url']['token'] = "{0}/v1/token".format(
+                self.openid['iss'])
+            self.openid['url']['user'] = "{0}/v1/userinfo".format(
+                self.openid['iss'])
 
         # Turn on debug if not specified, but ANSIBLE_DEBUG is set
         self.module_debug = {}
@@ -147,8 +158,8 @@ class ServiceNowModule(AnsibleModule):
             self._auth_oauth()
         elif self.params['auth'] == 'token':
             self._auth_token()
-        elif self.params['auth'] == 'okta':
-            self._auth_okta()
+        elif self.params['auth'] == 'openid':
+            self._auth_openid()
         else:
             self.fail(
                 msg="Auth method not implemented: {0}".format(
@@ -165,7 +176,8 @@ class ServiceNowModule(AnsibleModule):
                 instance=self.instance,
                 host=self.host,
                 user=self.username,
-                password=self.password
+                password=self.password,
+                raise_on_empty=self.raise_on_empty
             )
         except Exception as detail:
             self.module.fail(
@@ -184,7 +196,8 @@ class ServiceNowModule(AnsibleModule):
                 client_secret=self.client_secret,
                 token_updater=self._oauth_token_updater,
                 instance=self.instance,
-                host=self.host
+                host=self.host,
+                raise_on_empty=self.raise_on_empty
             )
         except Exception as detail:
             self.fail(
@@ -212,9 +225,10 @@ class ServiceNowModule(AnsibleModule):
         self.connection = pysnow.OAuthClient(
             client_id=self.client_id,
             client_secret=self.client_secret,
-            token_updater=self._token_updater,
+            token_updater=self._oauth_token_updater,
             instance=self.instance,
-            host=self.host
+            host=self.host,
+            raise_on_empty=self.raise_on_empty
         )
         try:
             self.connection.set_token(self.token)
@@ -237,7 +251,8 @@ class ServiceNowModule(AnsibleModule):
             self.connection = pysnow.Client(
                 instance=self.instance,
                 host=self.host,
-                session=s
+                session=s,
+                raise_on_empty=self.raise_on_empty
             )
         except Exception as detail:
             self.fail(
@@ -246,42 +261,26 @@ class ServiceNowModule(AnsibleModule):
                 )
             )
 
-    # Okta
+    # OpenID
     #
-    # Use the Okta OpenID protocol to obtain a bearer token.
-    def _auth_okta(self):
-        if self.okta['domain']:
-            self.okta['url']['base'] = "https://{0}/oauth2".format(
-                self.okta['domain'])
-            # Okta in Single Sign-On mode
-            self.okta['mode'] = 'SSO'
-        else:
-            self.fail(msg='auth=okta requires okta_domain be specified.')
-        if self.okta['server']:
-            self.okta['url']['base'] = "{0}/{1}".format(
-                self.okta['url']['base'], self.okta['server'])
-            # Okta in Custom Authorization Server mode
-            self.okta['mode'] = 'CAS'
-        self.okta['url']['introspect'] = "{0}/v1/introspect".format(
-            self.okta['url']['base'])
-        self.okta['url']['token'] = "{0}/v1/token".format(
-            self.okta['url']['base'])
-        self.okta['url']['user'] = "{0}/v1/userinfo".format(
-            self.okta['url']['base'])
+    # Use the OpenID Connect protocol to obtain a bearer token.
+    def _auth_openid(self):
+        if self.openid['iss'] is None:
+            self.fail(msg='OpenID requires openid_issuer be specified.')
 
         if self.token is None:
-            self.token = self._okta_get_token()
-            self._okta_inspect_token()
+            self.token = self._openid_get_token()
+            self._openid_inspect_token()
         else:
-            self._okta_inspect_token()
-            if self.result['okta']['active'] != 'true':
-                self.token = self._okta_get_token()
-                self._okta_inspect_token()
+            self._openid_inspect_token()
+            if self.result['openid']['active'] != 'true':
+                self.token = self._openid_get_token()
+                self._openid_inspect_token()
         self._auth_token()
 
-    def _okta_get_token(self):
+    def _openid_get_token(self):
         r = requests.post(
-            self.okta['url']['token'],
+            self.openid['url']['token'],
             auth=(self.client_id, self.client_secret),
             headers={
                 'accept': 'application/json',
@@ -291,15 +290,15 @@ class ServiceNowModule(AnsibleModule):
                 'grant_type': 'password',
                 'username': self.username,
                 'password': self.password,
-                'scope': self.okta['scope']
+                'scope': self.openid['scope']
             }
         )
-        self._okta_response(r)
-        return self.result['okta']['id_token']
+        self._openid_response(r)
+        return self.result['openid']['id_token']
 
-    def _okta_inspect_token(self):
+    def _openid_inspect_token(self):
         r = requests.post(
-            self.okta['url']['introspect'],
+            self.openid['url']['introspect'],
             auth=(self.client_id, self.client_secret),
             headers={
                 'accept': 'application/json',
@@ -310,14 +309,13 @@ class ServiceNowModule(AnsibleModule):
                 'token_type_hint': 'id_token'
             }
         )
-        self._okta_response(r)
+        self._openid_response(r)
 
-    def _okta_response(self, r):
+    def _openid_response(self, r):
         r.raise_for_status()
-        if 'okta' not in self.result:
-            self.result['okta'] = r.json()
-        else:
-            self.result['okta'].update(r.json())
+        if 'openid' not in self.result:
+            self.result['openid'] = self.openid
+        self.result['openid'].update(r.json())
 
     #
     # Extend AnsibleModule methods
@@ -357,7 +355,7 @@ class ServiceNowModule(AnsibleModule):
                     'basic',
                     'oauth',
                     'token',
-                    'okta',
+                    'openid',
                 ],
                 default='basic',
                 fallback=(
@@ -373,6 +371,10 @@ class ServiceNowModule(AnsibleModule):
                     'normal',
                 ],
                 default='normal'
+            ),
+            raise_on_empty=dict(
+                type='bool',
+                default=True
             ),
             instance=dict(
                 type='str',
@@ -434,30 +436,27 @@ class ServiceNowModule(AnsibleModule):
                     ['SN_TOKEN']
                 )
             ),
-            okta_domain=dict(
+            openid=dict(
+                type='dict',
+                required=False
+            ),
+            openid_issuer=dict(
                 type='str',
                 required=False,
                 fallback=(
                     env_fallback,
-                    ['OKTA_DOMAIN']
+                    ['OPENID_ISSUER']
                 )
             ),
-            okta_server=dict(
-                type='str',
-                required=False,
-                fallback=(
-                    env_fallback,
-                    ['OKTA_SERVER']
-                )
-            ),
-            # No codes means offline_access is not available.
-            okta_scope=dict(
+            # offline_access is not supported.
+            openid_scope=dict(
                 type='list',
                 elements='str',
                 required=False,
+                default="openid email",
                 fallback=(
                     env_fallback,
-                    ['OKTA_SCOPE']
+                    ['OPENID_SCOPE']
                 )
             ),
         )

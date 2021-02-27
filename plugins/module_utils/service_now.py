@@ -268,12 +268,12 @@ class ServiceNowModule(AnsibleModule):
             now = int(time.time())
             if 'active' not in self.openid.keys():
                 self._openid_inspect_token()
-            if self.openid['active'] != 'true' or self.openid['exp'] <= now:
+            if self.openid['active'] != 'true' or (self.openid['exp'] - self.openid['drift']) <= now:
                 self._openid_get_token()
         self._auth_token()
 
     def _openid_get_token(self):
-        now = int(time.time())
+        self.openid['iatlocal'] = int(time.time())
         r = requests.post(
             self.openid['url']['token'],
             auth=(self.client_id, self.client_secret),
@@ -291,11 +291,6 @@ class ServiceNowModule(AnsibleModule):
         self._openid_response(r)
         self.token = self.openid['id_token']
         self._openid_inspect_token()
-        drift = self.openid['iat'] - now
-        if drift > 0:
-            self.openid['exp'] -= drift
-        self.openid['now'] = now
-        self.openid['drift'] = drift
 
     def _openid_inspect_token(self):
         r = requests.post(
@@ -315,6 +310,8 @@ class ServiceNowModule(AnsibleModule):
     def _openid_response(self, r):
         r.raise_for_status()
         self.openid.update(r.json())
+        if 'drift' not in self.openid and 'iat' in self.openid:
+            self.openid['drift'] = self.openid['iat'] - self.openid['iatlocal']
         if 'openid' not in self.result:
             self.result['openid'] = self.openid
         else:

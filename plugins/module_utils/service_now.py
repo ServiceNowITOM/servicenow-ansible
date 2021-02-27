@@ -265,10 +265,13 @@ class ServiceNowModule(AnsibleModule):
         if self.token is None:
             self._openid_get_token()
         else:
-            now = int(time.time())
             if 'active' not in self.openid.keys():
                 self._openid_inspect_token()
-            if self.openid['active'] != 'true' or (self.openid['exp'] - self.openid['drift']) <= now:
+            if 'drift' in self.openid and self.openid['drift'] > 0:
+                exp = self.openid['exp'] - self.openid['drift']
+            else:
+                exp = self.openid['exp']
+            if self.openid['active'] != 'true' or int(time.time()) >= exp:
                 self._openid_get_token()
         self._auth_token()
 

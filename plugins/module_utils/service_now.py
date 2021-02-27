@@ -287,6 +287,7 @@ class ServiceNowModule(AnsibleModule):
                 'scope': self.openid['scope']
             }
         )
+        self.openid['now'] = int(time.time())
         self._openid_response(r)
         self.token = self.openid['id_token']
         self._openid_inspect_token()

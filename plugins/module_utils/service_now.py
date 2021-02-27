@@ -102,7 +102,7 @@ class ServiceNowModule(AnsibleModule):
 
         self.auth = (self.params['auth']).lower
         self.raise_on_empty = self.params['raise_on_empty']
-        if self.raise_on_empty == True:
+        if self.raise_on_empty:
             self.raise_on_empty = None
 
         # OPTIONAL: Use params.get() to gracefully fail
@@ -273,6 +273,7 @@ class ServiceNowModule(AnsibleModule):
         self._auth_token()
 
     def _openid_get_token(self):
+        now = int(time.time())
         r = requests.post(
             self.openid['url']['token'],
             auth=(self.client_id, self.client_secret),
@@ -287,10 +288,14 @@ class ServiceNowModule(AnsibleModule):
                 'scope': self.openid['scope']
             }
         )
-        self.openid['now'] = int(time.time())
         self._openid_response(r)
         self.token = self.openid['id_token']
         self._openid_inspect_token()
+        drift = self.openid['iat'] - now
+        if drift > 0:
+            self.openid['exp'] -= drift
+        self.openid['now'] = now
+        self.openid['drift'] = drift
 
     def _openid_inspect_token(self):
         r = requests.post(

@@ -31,10 +31,6 @@ class ServiceNowModule(AnsibleModule):
         :module: ServiceNowModule extended from AnsibleModule.
         '''
 
-        # Turn on debugging
-        logging.basicConfig(level=logging.DEBUG)
-        logging.debug("Debug on for pysnow in ServiceNowModule.")
-
         # Initialize instance arguments
         self._required_together = [
             ['username', 'password'],
@@ -91,8 +87,20 @@ class ServiceNowModule(AnsibleModule):
 
         # Params
         #
+
         # REQUIRED: Their absence will chuck a rod
-        self.auth = self.params['auth']
+        # Turn on debug if not specified, but ANSIBLE_DEBUG is set
+        self.module_debug = {}
+        if self._debug:
+            self.warn('Enable debug output because ANSIBLE_DEBUG was set.')
+            self.params['log_level'] = 'debug'
+        self.log_level = (self.params['log_level']).lower
+        if self.log_level == 'debug':
+            # Turn on debugging
+            logging.basicConfig(level=logging.DEBUG)
+            logging.debug("Debug on for ServiceNowModule.")
+
+        self.auth = (self.params['auth']).lower
         self.raise_on_empty = self.params['raise_on_empty']
         if self.raise_on_empty == True:
             self.raise_on_empty = None
@@ -119,13 +127,6 @@ class ServiceNowModule(AnsibleModule):
                 self.openid['iss'])
             self.openid['url']['userinfo'] = "{0}/v1/userinfo".format(
                 self.openid['iss'])
-
-        # Turn on debug if not specified, but ANSIBLE_DEBUG is set
-        self.module_debug = {}
-        if self._debug:
-            self.warn('Enable debug output because ANSIBLE_DEBUG was set.')
-            self.params['log_level'] = 'debug'
-        self.log_level = self.params['log_level']
 
         # Log into Service Now
         self._login()
@@ -265,9 +266,9 @@ class ServiceNowModule(AnsibleModule):
             self._openid_get_token()
         else:
             now = int(time.time())
-            if 'active' not in self.openid:
+            if 'active' not in self.openid.keys():
                 self._openid_inspect_token()
-            if self.result['openid']['active'] != 'true' or self.result['openid']['exp'] <= now:
+            if self.openid['active'] != 'true' or self.openid['exp'] <= now:
                 self._openid_get_token()
         self._auth_token()
 
@@ -287,7 +288,7 @@ class ServiceNowModule(AnsibleModule):
             }
         )
         self._openid_response(r)
-        self.token = self.result['openid']['id_token']
+        self.token = self.openid['id_token']
         self._openid_inspect_token()
 
     def _openid_inspect_token(self):
@@ -307,9 +308,11 @@ class ServiceNowModule(AnsibleModule):
 
     def _openid_response(self, r):
         r.raise_for_status()
+        self.openid.update(r.json())
         if 'openid' not in self.result:
             self.result['openid'] = self.openid
-        self.result['openid'].update(r.json())
+        else:
+            self.result['openid'].update(self.openid)
 
     #
     # Extend AnsibleModule methods
@@ -445,7 +448,7 @@ class ServiceNowModule(AnsibleModule):
             # offline_access is not supported.
             openid_scope=dict(
                 type='list',
-                elements='str',
+                elements=str,
                 required=False,
                 default="openid email",
                 fallback=(

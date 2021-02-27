@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 import requests
 import traceback
+import time
 import logging
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
@@ -74,17 +75,9 @@ class ServiceNowModule(AnsibleModule):
         # Output of module
         self.result = {}
 
-        # Okta information
-        self.openid = {
-            'iss': None,
-            'scope': None,
-            # Supported endpoints
-            'url': {
-                'introspect': None,
-                'token': None,
-                'user': None,
-            },
-        }
+        # OpenID information
+        self.openid = {}
+        self.openid['url'] = {}
 
         # Authenticated connection
         self.connection = None
@@ -124,7 +117,7 @@ class ServiceNowModule(AnsibleModule):
                 self.openid['iss'])
             self.openid['url']['token'] = "{0}/v1/token".format(
                 self.openid['iss'])
-            self.openid['url']['user'] = "{0}/v1/userinfo".format(
+            self.openid['url']['userinfo'] = "{0}/v1/userinfo".format(
                 self.openid['iss'])
 
         # Turn on debug if not specified, but ANSIBLE_DEBUG is set
@@ -269,13 +262,13 @@ class ServiceNowModule(AnsibleModule):
             self.fail(msg='OpenID requires openid_issuer be specified.')
 
         if self.token is None:
-            self.token = self._openid_get_token()
-            self._openid_inspect_token()
+            self._openid_get_token()
         else:
-            self._openid_inspect_token()
-            if self.result['openid']['active'] != 'true':
-                self.token = self._openid_get_token()
+            now = int(time.time())
+            if 'active' not in self.openid:
                 self._openid_inspect_token()
+            if self.result['openid']['active'] != 'true' or self.result['openid']['exp'] <= now:
+                self._openid_get_token()
         self._auth_token()
 
     def _openid_get_token(self):
@@ -294,7 +287,8 @@ class ServiceNowModule(AnsibleModule):
             }
         )
         self._openid_response(r)
-        return self.result['openid']['id_token']
+        self.token = self.result['openid']['id_token']
+        self._openid_inspect_token()
 
     def _openid_inspect_token(self):
         r = requests.post(

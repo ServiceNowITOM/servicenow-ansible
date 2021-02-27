@@ -119,7 +119,7 @@ class ServiceNowModule(AnsibleModule):
             self.token = self.openid['id_token']
         else:
             self.openid['iss'] = self.params.get('openid_issuer')
-            self.openid['scope'] = self.params.get('okta_scope')
+            self.openid['scope'] = self.params.get('openid_scope')
             self.openid['url']['introspect'] = "{0}/v1/introspect".format(
                 self.openid['iss'])
             self.openid['url']['token'] = "{0}/v1/token".format(

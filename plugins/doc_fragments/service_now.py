@@ -86,8 +86,7 @@ options:
     openid_scope:
       description:
       - A list of scopes to be included in the access token.
-      - Supported scopes for this application are: address, email, groups, openid, phone, profile.
-      - One of the specified scopes must be 'openid'.
+      - Supported scopes for this application are address, email, groups, openid, phone, profile, of which, openid must be one.
       - If the value is not specified in the task, the value of environment variable C(OPENID_SCOPE) will be used instead.
       required: false
       type: list

@@ -7,7 +7,7 @@
 
 from __future__ import absolute_import, division, print_function
 from ansible.module_utils._text import to_bytes, to_native
-from ansible_collections.n3pjk.servicenow.plugins.module_utils.service_now import ServiceNowModule
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
 import os
 __metaclass__ = type
 
@@ -78,7 +78,7 @@ requirements:
 author:
     - Tim Rightnour (@garbled1)
 extends_documentation_fragment:
-- n3pjk.servicenow.service_now.documentation
+- servicenow.servicenow.service_now.documentation
 
 '''
 

@@ -1,2 +1,3 @@
 pysnow
 netaddr
+requests

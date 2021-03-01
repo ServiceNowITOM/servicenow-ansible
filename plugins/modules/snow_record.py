@@ -55,6 +55,24 @@ options:
       - Attach a file to the record.
       required: false
       type: str
+    display_value:
+      description:
+      - sysparm_display_value
+      type: bool
+      required: false
+      default: false
+    exclude_reference_link:
+      description:
+      - sysparm_exclude_reference_link
+      type: bool
+      required: false
+      default: false
+    suppress_pagination_header:
+      description:
+      - sysparm_suppress_pagination_header
+      type: bool
+      required: false
+      default: false
 requirements:
     - python pysnow (pysnow)
 author:
@@ -240,11 +258,11 @@ def main():
         ),
         number=dict(
             type='str',
-            required=False
+            default=None
         ),
         data=dict(
             type='dict',
-            required=False
+            default=None
         ),
         lookup_field=dict(
             type='str',
@@ -252,7 +270,19 @@ def main():
         ),
         attachment=dict(
             type='str',
-            required=False
+            default=None
+        ),
+        display_value=dict(
+            type='bool',
+            default=False
+        ),
+        exclude_reference_link=dict(
+            type='bool',
+            default=False
+        ),
+        suppress_pagination_header=dict(
+            type='bool',
+            default=False
         )
     )
     module_required_if = [
@@ -271,6 +301,9 @@ def main():
     number = params['number']
     data = params['data']
     lookup_field = params['lookup_field']
+    display_value = params['display_value']
+    exclude_reference_link = params['exclude_reference_link']
+    suppress_pagination_header = params['suppress_pagination_header']
 
     # check for attachments
     if params['attachment'] is not None:
@@ -281,6 +314,10 @@ def main():
         module.result['attachment'] = attach
     else:
         attach = None
+
+    module.connection.parameters.display_value = display_value
+    module.connection.parameters.exclude_reference_link = exclude_reference_link
+    module.connection.parameters.suppress_pagination_header = suppress_pagination_header
 
     # Deal with check mode
     if module.check_mode:
@@ -294,9 +331,10 @@ def main():
         # do we want to check if the record is non-existent?
         elif state == 'absent':
             try:
-                record = module.connection.query(
-                    table=table, query={lookup_field: number})
-                res = record.get_one()
+                resource = module.connection.resource(
+                    api_path='/table/' + table)
+                response = resource.get(query={lookup_field: number})
+                res = response.one()
                 module.result['record'] = dict(Success=True)
                 module.result['changed'] = True
             except pysnow.exceptions.NoResults:
@@ -310,9 +348,10 @@ def main():
         # Let's simulate modification
         else:
             try:
-                record = module.connection.query(
-                    table=table, query={lookup_field: number})
-                res = record.get_one()
+                resource = module.connection.resource(
+                    api_path='/table/' + table)
+                response = resource.get(query={lookup_field: number})
+                res = response.one()
                 for key, value in data.items():
                     res[key] = value
                     module.result['changed'] = True
@@ -331,7 +370,9 @@ def main():
     # are we creating a new record?
     if state == 'present' and number is None:
         try:
-            record = module.connection.insert(table=table, payload=dict(data))
+            resource = module.connection.resource(api_path='/table/' + table)
+            response = resource.create(payload=dict(data))
+            record = response.one()
         except pysnow.exceptions.UnexpectedResponseFormat as e:
             module.fail(msg="Failed to create record: {0}, details: {1}".format(
                 e.error_summary,
@@ -346,9 +387,8 @@ def main():
     # we are deleting a record
     elif state == 'absent':
         try:
-            record = module.connection.query(
-                table=table, query={lookup_field: number})
-            res = record.delete()
+            resource = module.connection.resource(api_path='/table/' + table)
+            res = resource.delete(query={lookup_field: number})
         except pysnow.exceptions.NoResults:
             res = dict(Success=True)
         except pysnow.exceptions.MultipleResults:
@@ -372,15 +412,15 @@ def main():
     # We want to update a record
     else:
         try:
-            record = module.connection.query(
-                table=table, query={lookup_field: number})
+            resource = module.connection.resource(api_path='/table/' + table)
+            response = resource.get(query={lookup_field: number})
+            record = response.one()
             if data is not None:
-                res = record.update(dict(data))
-                module.result['record'] = res
+                res = response.update(data)
+                module.result['record'] = record
                 module.result['changed'] = True
             else:
-                res = record.get_one()
-                module.result['record'] = res
+                module.result['record'] = record
             if attach is not None:
                 res = record.attach(b_attach)
                 module.result['changed'] = True

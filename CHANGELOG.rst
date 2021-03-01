@@ -1,8 +1,20 @@
-===========================================================
-Servicenow.Servicenow "When the Levee Breaks" Release Notes
-===========================================================
+===================================
+Servicenow.Servicenow Release Notes
+===================================
 
 .. contents:: Topics
+
+
+v1.0.4
+======
+
+Major Changes
+-------------
+
+- add new tests (find with no result, search many)
+- add related tests
+- add support for ServiceNOW table api display_value exclude_reference_link and suppress_pagination_header
+- use new API for pysnow >=0.6.0
 
 v1.0.3
 ======

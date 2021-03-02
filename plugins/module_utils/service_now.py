@@ -288,7 +288,7 @@ class ServiceNowModule(AnsibleModule):
                 'grant_type': 'password',
                 'username': self.username,
                 'password': self.password,
-                'scope': self.openid['scope']
+                'scope': ''.join(str(e) for e in self.openid['scope'])
             }
         )
         self._openid_response(r)
@@ -456,7 +456,7 @@ class ServiceNowModule(AnsibleModule):
                 type='list',
                 elements=str,
                 required=False,
-                default="openid email",
+                default=['openid'],
                 fallback=(
                     env_fallback,
                     ['OPENID_SCOPE']

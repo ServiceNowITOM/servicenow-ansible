@@ -90,7 +90,7 @@ options:
       - If the value is not specified in the task, the value of environment variable C(OPENID_SCOPE) will be used instead.
       required: false
       type: list
-      default: 'openid email'
+      default: ['openid']
     openid:
       description:
       - If the result of a previous SNOW method, using OpenID, was registered, supply the C(openid) key, from the result.

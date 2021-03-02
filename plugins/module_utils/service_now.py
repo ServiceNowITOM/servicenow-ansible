@@ -441,7 +441,8 @@ class ServiceNowModule(AnsibleModule):
             ),
             openid=dict(
                 type='dict',
-                required=False
+                required=False,
+                no_log=True
             ),
             openid_issuer=dict(
                 type='str',

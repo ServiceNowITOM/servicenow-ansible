@@ -5,10 +5,9 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import requests
 import traceback
-import time
 import logging
+import time
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
 from ansible_collections.servicenow.servicenow.plugins.module_utils.httpbearerauth import HTTPBearerAuth
@@ -21,6 +20,15 @@ try:
     HAS_PYSNOW = True
 except ImportError:
     PYSNOW_IMP_ERR = traceback.format_exc()
+
+# Pull in requests
+HAS_REQUESTS = False
+REQUESTS_IMP_ERR = None
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    REQUESTS_IMP_ERR = traceback.format_exc()
 
 
 class ServiceNowModule(AnsibleModule):
@@ -79,11 +87,11 @@ class ServiceNowModule(AnsibleModule):
         self.connection = None
 
         if not HAS_PYSNOW:
-            AnsibleModule.fail_json(
-                self,
-                msg=missing_required_lib('pysnow'),
-                exception=PYSNOW_IMP_ERR
-            )
+            self.fail(self, msg=missing_required_lib('pysnow'),
+                      exception=PYSNOW_IMP_ERR)
+        if not HAS_REQUESTS:
+            self.fail(self, msg=missing_required_lib('requests'),
+                      exception=REQUESTS_IMP_ERR)
 
         # Params
         #

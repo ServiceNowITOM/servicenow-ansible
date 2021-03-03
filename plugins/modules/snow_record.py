@@ -235,6 +235,7 @@ attached_file:
 try:
     # This is being handled by ServiceNowModule
     import pysnow
+    import requests
 except ImportError:
     pass
 

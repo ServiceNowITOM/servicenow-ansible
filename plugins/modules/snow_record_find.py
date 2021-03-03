@@ -217,6 +217,7 @@ record:
 try:
     # This is being managed by ServiceNowModule
     import pysnow
+    import requests
 except ImportError:
     pass
 

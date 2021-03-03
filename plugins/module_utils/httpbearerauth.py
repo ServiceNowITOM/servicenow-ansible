@@ -6,16 +6,15 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 import traceback
 
-from ansible.module_utils.six import raise_from
-
 # Pull in requests
-REQUESTS_IMP_ERR = None
+AUTHBASE_IMP_ERR = None
 try:
-    import requests
+    from requests.auth import AuthBase
 except ImportError:
-    REQUESTS_IMP_ERR = traceback.format_exc()
+    AUTHBASE_IMP_ERR = traceback.format_exc()
 
-class HTTPBearerAuth(requests.auth.AuthBase):
+
+class HTTPBearerAuth(AuthBase):
     """A :class:`requests.auth` bearer token authentication method
     per https://2.python-requests.org/en/master/user/authentication/#new-forms-of-authentication
 

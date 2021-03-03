@@ -480,7 +480,7 @@ class ServiceNowModule(AnsibleModule):
             # offline_access is not supported.
             openid_scope=dict(
                 type='list',
-                elements=str,
+                elements='str',
                 required=False,
                 default=['openid'],
                 fallback=(

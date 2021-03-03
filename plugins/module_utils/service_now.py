@@ -10,7 +10,6 @@ import logging
 import time
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, missing_required_lib
-from ansible_collections.servicenow.servicenow.plugins.module_utils.httpbearerauth import HTTPBearerAuth
 
 # Pull in pysnow
 HAS_PYSNOW = False

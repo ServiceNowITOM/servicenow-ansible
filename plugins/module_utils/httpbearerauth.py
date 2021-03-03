@@ -7,6 +7,7 @@ __metaclass__ = type
 import traceback
 
 from ansible.module_utils.six import raise_from
+from ansible.errors import AnsibleError
 
 # Pull in requests
 REQUESTS_IMP_ERR = None

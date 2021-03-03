@@ -30,20 +30,23 @@ except ImportError:
     REQUESTS_IMP_ERR = traceback.format_exc()
 
 
-class HTTPBearerAuth(requests.auth.AuthBase):
-    """A :class:`requests.auth.AuthBase` bearer token authentication method
-    per https://2.python-requests.org/en/master/user/authentication/#new-forms-of-authentication
+if HAS_REQUESTS:
+    class HTTPBearerAuth(requests.auth.AuthBase):
+        """A :class:`requests.auth.AuthBase` bearer token authentication method
+        per https://2.python-requests.org/en/master/user/authentication/#new-forms-of-authentication
 
-    :param token: Bearer token to be used instead of user/pass or session
-    """
+        :param token: Bearer token to be used instead of user/pass or session
+        """
 
-    def __init__(self, token):
-        self.token = token
+        def __init__(self, token):
+            self.token = token
 
-    def __call__(self, r):
-        r.headers['Authorization'] = "Bearer {0}".format(str(self.token))
-        return r
-
+        def __call__(self, r):
+            r.headers['Authorization'] = "Bearer {0}".format(str(self.token))
+            return r
+else:
+    class HTTPBearerAuth(object):
+        pass
 
 class ServiceNowModule(AnsibleModule):
 

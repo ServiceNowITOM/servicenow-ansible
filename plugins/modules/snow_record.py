@@ -75,6 +75,7 @@ options:
       default: false
 requirements:
     - python pysnow (pysnow)
+    - python requests (requests)
 author:
     - Tim Rightnour (@garbled1)
 extends_documentation_fragment:

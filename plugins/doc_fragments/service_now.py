@@ -96,6 +96,7 @@ options:
       - If the value is not specified in the task, the value of environment variable C(OPENID_SCOPE) will be used instead.
       required: false
       type: list
+      elements: str
       default: ['openid']
     openid:
       description:

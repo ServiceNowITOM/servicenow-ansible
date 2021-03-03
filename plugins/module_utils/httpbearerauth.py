@@ -7,7 +7,6 @@ __metaclass__ = type
 import traceback
 
 from ansible.module_utils.six import raise_from
-from ansible.errors import AnsibleError
 
 # Pull in requests
 REQUESTS_IMP_ERR = None
@@ -25,10 +24,6 @@ class HTTPBearerAuth(requests.auth.AuthBase):
 
     def __init__(self, token):
         self.token = token
-        if REQUESTS_IMP_ERR:
-            raise_from(
-                AnsibleError('requests must be installed to use this plugin'),
-                REQUESTS_IMP_ERR)
 
     def __call__(self, r):
         r.headers['Authorization'] = "Bearer {0}".format(str(self.token))

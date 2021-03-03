@@ -9,6 +9,7 @@ import traceback
 # Pull in requests
 AUTHBASE_IMP_ERR = None
 try:
+    import requests
     from requests.auth import AuthBase
 except ImportError:
     AUTHBASE_IMP_ERR = traceback.format_exc()

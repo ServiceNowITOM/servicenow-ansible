@@ -168,7 +168,7 @@ EXAMPLES = r'''
     password: my_password
     client_id: "1234567890abcdef1234567890abcdef"
     client_secret: "Password1!"
-    openid: "{{ response['openid'] }}
+    openid: "{{ response['openid'] }}"
     instance: dev99999
     table: incident
     query:

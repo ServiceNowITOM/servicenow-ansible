@@ -25,13 +25,12 @@ HAS_REQUESTS = False
 REQUESTS_IMP_ERR = None
 try:
     import requests
-    from requests.auth import AuthBase
     HAS_REQUESTS = True
 except ImportError:
     REQUESTS_IMP_ERR = traceback.format_exc()
 
 
-class HTTPBearerAuth(AuthBase):
+class HTTPBearerAuth(requests.auth.AuthBase):
     """A :class:`requests.auth` bearer token authentication method
     per https://2.python-requests.org/en/master/user/authentication/#new-forms-of-authentication
 

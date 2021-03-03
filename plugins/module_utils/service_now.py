@@ -31,7 +31,7 @@ except ImportError:
 
 
 class HTTPBearerAuth(requests.auth.AuthBase):
-    """A :class:`requests.auth` bearer token authentication method
+    """A :class:`requests.auth.AuthBase` bearer token authentication method
     per https://2.python-requests.org/en/master/user/authentication/#new-forms-of-authentication
 
     :param token: Bearer token to be used instead of user/pass or session

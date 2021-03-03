@@ -6,6 +6,7 @@ This collection provides a series of Ansible modules, roles, and plugins for int
 ## Requirements
  - ansible version >= 2.9
  - pysnow
+ - requests
  - netaddr
 
 ## Installation

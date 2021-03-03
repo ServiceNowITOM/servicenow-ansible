@@ -27,6 +27,12 @@ options:
       - This is particurlarly useful in snow_record_find, when not sure if any record exists.
       type: bool
       default: True
+    log_level:
+      description:
+      - Set the logging level of the module
+      choices: ['debug', 'info', 'normal']
+      type: str
+      default: normal
     instance:
       description:
       - The ServiceNow instance name, without the domain, service-now.com.

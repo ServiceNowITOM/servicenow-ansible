@@ -48,6 +48,7 @@ else:
     class HTTPBearerAuth(object):
         pass
 
+
 class ServiceNowModule(AnsibleModule):
 
     def __init__(self, required_together=None, mutually_exclusive=None, required_one_of=None, *args, **kwargs):
@@ -104,11 +105,11 @@ class ServiceNowModule(AnsibleModule):
         self.connection = None
 
         if not HAS_PYSNOW:
-            self.fail(self, msg=missing_required_lib('pysnow'),
-                      exception=PYSNOW_IMP_ERR)
+            AnsibleModule.fail_json(self, msg=missing_required_lib('pysnow'),
+                                    exception=PYSNOW_IMP_ERR)
         if not HAS_REQUESTS:
-            self.fail(self, msg=missing_required_lib('requests'),
-                      exception=REQUESTS_IMP_ERR)
+            AnsibleModule.fail_json(self, msg=missing_required_lib('requests'),
+                                    exception=REQUESTS_IMP_ERR)
 
         # Params
         #
@@ -199,7 +200,7 @@ class ServiceNowModule(AnsibleModule):
                 raise_on_empty=self.raise_on_empty
             )
         except Exception as detail:
-            self.module.fail(
+            self.fail(
                 msg='Could not connect to ServiceNow: {0}'.format(
                     str(detail)
                 )

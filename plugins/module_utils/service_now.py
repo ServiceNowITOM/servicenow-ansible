@@ -144,6 +144,8 @@ class ServiceNowModule(AnsibleModule):
         if self.params.get('openid') is not None:
             self.openid = self.params.get('openid')
             self.token = self.openid['id_token']
+            if not isinstance(self.openid['scope'], list):
+                self.openid['scope'] = list(self.openid['scope'].split(' '))
         else:
             self.openid['iss'] = self.params.get('openid_issuer')
             self.openid['scope'] = self.params.get('openid_scope')
@@ -294,10 +296,11 @@ class ServiceNowModule(AnsibleModule):
             if 'active' not in self.openid.keys():
                 self._openid_inspect_token()
             if 'drift' in self.openid and self.openid['drift'] > 0:
-                exp = self.openid['exp'] - self.openid['drift']
+                expires = self.openid['exp'] - self.openid['drift']
             else:
-                exp = self.openid['exp']
-            if self.openid['active'] != 'true' or int(time.time()) >= exp:
+                expires = self.openid['exp']
+            now = int(time.time())
+            if self.openid['active'].lower() != 'true' or now >= expires:
                 self._openid_get_token()
         self._auth_token()
 

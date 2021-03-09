@@ -300,7 +300,7 @@ class ServiceNowModule(AnsibleModule):
             else:
                 expires = self.openid['exp']
             now = int(time.time())
-            if self.openid['active'].lower() != 'true' or now >= expires:
+            if not self.openid['active'] or now >= expires:
                 self._openid_get_token()
         self._auth_token()
 

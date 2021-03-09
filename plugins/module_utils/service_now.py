@@ -349,7 +349,7 @@ class ServiceNowModule(AnsibleModule):
         self._openid_result()
 
     def _openid_result(self):
-        if 'openid' not in self.result:
+        if 'openid' not in self.result.keys():
             self.result['openid'] = self.openid
         else:
             self.result['openid'].update(self.openid)

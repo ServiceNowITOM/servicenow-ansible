@@ -420,12 +420,13 @@ def main():
             record = response.one()
             if data is not None:
                 res = response.update(data)
+                record = res.one()
                 module.result['record'] = record
                 module.result['changed'] = True
             else:
                 module.result['record'] = record
             if attach is not None:
-                res = record.attach(b_attach)
+                res = response.upload(b_attach)
                 module.result['changed'] = True
                 module.result['attached_file'] = res
 

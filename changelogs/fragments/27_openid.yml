@@ -1,9 +1,10 @@
 ---
-major_changes:
-- refactored client to inherit from AnsibleModule
-- supports bearer tokens for authentication
-- supports OpenID Connect authentication protocol
-minor_changes:
-- standardized invocation output
-breaking_changes:
-- 'auth' field now required for anything other than Basic authentication
+changes:
+  major_changes:
+  - refactored client to inherit from AnsibleModule
+  - supports bearer tokens for authentication
+  - supports OpenID Connect authentication protocol
+  minor_changes:
+  - standardized invocation output
+  breaking_changes:
+  - 'auth' field now required for anything other than Basic authentication

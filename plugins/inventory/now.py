@@ -20,7 +20,8 @@ DOCUMENTATION = r'''
         - constructed
         - inventory_cache
     requirements:
-        - requests
+        - python requests (requests)
+        - netaddr
     options:
         plugin:
             description: The name of the ServiceNow Inventory Plugin, this should always be 'servicenow.servicenow.now'.
@@ -138,7 +139,12 @@ keyed_groups:
     prefix: 'tag'
 '''
 
-import netaddr
+try:
+    import netaddr
+    HAS_NETADDR = True
+except ImportError:
+    HAS_NETADDR = False
+
 try:
     import requests
     HAS_REQUESTS = True

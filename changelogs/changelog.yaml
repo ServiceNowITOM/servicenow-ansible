@@ -27,6 +27,7 @@ releases:
     - 34_pysnow_0.6.yml
     - 35_add_new_parameters.yml
     release_date: '2021-02-03'
+<<<<<<< HEAD
   1.0.5:
     changes:
       breaking_changes:
@@ -40,3 +41,5 @@ releases:
     fragments:
     - 27_openid.yml
     release_date: '2021-04-02'
+=======
+>>>>>>> main

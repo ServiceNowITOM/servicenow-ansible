@@ -5,6 +5,7 @@ Servicenow.Servicenow Release Notes
 .. contents:: Topics
 
 
+<<<<<<< HEAD
 v1.0.5
 ======
 
@@ -25,6 +26,8 @@ Breaking Changes / Porting Guide
 
 - auth field now required for anything other than Basic authentication
 
+=======
+>>>>>>> main
 v1.0.4
 ======
 

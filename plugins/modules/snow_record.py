@@ -247,6 +247,7 @@ def main():
     # the module
     module_args = ServiceNowModule.create_argument_spec()
     module_args.update(
+<<<<<<< HEAD
         table=dict(
             type='str',
             default='incident'
@@ -287,6 +288,18 @@ def main():
             type='bool',
             default=False
         )
+=======
+        table=dict(type='str', required=False, default='incident'),
+        state=dict(choices=['present', 'absent'],
+                   type='str', required=True),
+        number=dict(default=None, required=False, type='str'),
+        data=dict(default=None, required=False, type='dict'),
+        lookup_field=dict(default='number', required=False, type='str'),
+        attachment=dict(default=None, required=False, type='str'),
+        display_value=dict(default=False, type='bool', required=False),
+        exclude_reference_link=dict(default=False, type='bool', required=False),
+        suppress_pagination_header=dict(default=False, type='bool', required=False)
+>>>>>>> main
     )
     module_required_if = [
         ['state', 'absent', ['number']],
@@ -307,6 +320,21 @@ def main():
     display_value = params['display_value']
     exclude_reference_link = params['exclude_reference_link']
     suppress_pagination_header = params['suppress_pagination_header']
+<<<<<<< HEAD
+=======
+
+    result = dict(
+        changed=False,
+        instance=instance,
+        host=host,
+        table=table,
+        number=number,
+        lookup_field=lookup_field,
+        display_value=display_value,
+        exclude_reference_link=exclude_reference_link,
+        suppress_pagination_header=suppress_pagination_header
+    )
+>>>>>>> main
 
     # check for attachments
     if params['attachment'] is not None:
@@ -318,9 +346,15 @@ def main():
     else:
         attach = None
 
+<<<<<<< HEAD
     module.connection.parameters.display_value = display_value
     module.connection.parameters.exclude_reference_link = exclude_reference_link
     module.connection.parameters.suppress_pagination_header = suppress_pagination_header
+=======
+    conn.parameters.display_value = display_value
+    conn.parameters.exclude_reference_link = exclude_reference_link
+    conn.parameters.suppress_pagination_header = suppress_pagination_header
+>>>>>>> main
 
     # Deal with check mode
     if module.check_mode:
@@ -334,12 +368,20 @@ def main():
         # do we want to check if the record is non-existent?
         elif state == 'absent':
             try:
+<<<<<<< HEAD
                 resource = module.connection.resource(
                     api_path='/table/' + table)
                 response = resource.get(query={lookup_field: number})
                 res = response.one()
                 module.result['record'] = dict(Success=True)
                 module.result['changed'] = True
+=======
+                resource = conn.resource(api_path='/table/' + table)
+                response = resource.get(query={lookup_field: number})
+                res = response.one()
+                result['record'] = dict(Success=True)
+                result['changed'] = True
+>>>>>>> main
             except pysnow.exceptions.NoResults:
                 module.result['record'] = None
             except Exception as detail:
@@ -351,8 +393,12 @@ def main():
         # Let's simulate modification
         else:
             try:
+<<<<<<< HEAD
                 resource = module.connection.resource(
                     api_path='/table/' + table)
+=======
+                resource = conn.resource(api_path='/table/' + table)
+>>>>>>> main
                 response = resource.get(query={lookup_field: number})
                 res = response.one()
                 for key, value in data.items():
@@ -373,7 +419,11 @@ def main():
     # are we creating a new record?
     if state == 'present' and number is None:
         try:
+<<<<<<< HEAD
             resource = module.connection.resource(api_path='/table/' + table)
+=======
+            resource = conn.resource(api_path='/table/' + table)
+>>>>>>> main
             response = resource.create(payload=dict(data))
             record = response.one()
         except pysnow.exceptions.UnexpectedResponseFormat as e:
@@ -390,7 +440,11 @@ def main():
     # we are deleting a record
     elif state == 'absent':
         try:
+<<<<<<< HEAD
             resource = module.connection.resource(api_path='/table/' + table)
+=======
+            resource = conn.resource(api_path='/table/' + table)
+>>>>>>> main
             res = resource.delete(query={lookup_field: number})
         except pysnow.exceptions.NoResults:
             res = dict(Success=True)
@@ -415,16 +469,27 @@ def main():
     # We want to update a record
     else:
         try:
+<<<<<<< HEAD
             resource = module.connection.resource(api_path='/table/' + table)
+=======
+            resource = conn.resource(api_path='/table/' + table)
+>>>>>>> main
             response = resource.get(query={lookup_field: number})
             record = response.one()
             if data is not None:
                 res = response.update(data)
+<<<<<<< HEAD
                 record = res.one()
                 module.result['record'] = record
                 module.result['changed'] = True
             else:
                 module.result['record'] = record
+=======
+                result['record'] = record
+                result['changed'] = True
+            else:
+                result['record'] = record
+>>>>>>> main
             if attach is not None:
                 res = response.upload(b_attach)
                 module.result['changed'] = True

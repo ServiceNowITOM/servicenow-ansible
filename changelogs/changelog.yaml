@@ -27,3 +27,16 @@ releases:
     - 34_pysnow_0.6.yml
     - 35_add_new_parameters.yml
     release_date: '2021-02-03'
+  1.0.5:
+    changes:
+      breaking_changes:
+      - auth field now required for anything other than Basic authentication
+      major_changes:
+      - refactored client to inherit from AnsibleModule
+      - supports OpenID Connect authentication protocol
+      - supports bearer tokens for authentication
+      minor_changes:
+      - standardized invocation output
+    fragments:
+    - 27_openid.yml
+    release_date: '2021-04-02'

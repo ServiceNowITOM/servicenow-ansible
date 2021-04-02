@@ -5,6 +5,26 @@ Servicenow.Servicenow Release Notes
 .. contents:: Topics
 
 
+v1.0.5
+======
+
+Major Changes
+-------------
+
+- refactored client to inherit from AnsibleModule
+- supports OpenID Connect authentication protocol
+- supports bearer tokens for authentication
+
+Minor Changes
+-------------
+
+- standardized invocation output
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- auth field now required for anything other than Basic authentication
+
 v1.0.4
 ======
 

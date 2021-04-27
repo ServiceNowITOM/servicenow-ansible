@@ -175,7 +175,10 @@ class ServiceNowModule(AnsibleModule):
     def _login(self):
         self.result['changed'] = False
         if self.params['auth'] == 'basic':
-            self._auth_basic()
+            if self.client_id is not None:
+                self._auth_oauth()
+            else:
+                self._auth_basic()
         elif self.params['auth'] == 'oauth':
             self._auth_oauth()
         elif self.params['auth'] == 'token':

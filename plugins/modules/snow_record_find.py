@@ -212,6 +212,8 @@ record:
     returned: always
 '''
 
+from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule
+from ansible.module_utils._text import to_native
 
 from ansible.module_utils._text import to_native
 from ansible_collections.servicenow.servicenow.plugins.module_utils.service_now import ServiceNowModule

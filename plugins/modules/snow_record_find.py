@@ -347,16 +347,16 @@ class SnowRecordFind(object):
                 msg='Failed to find record: {0}'.format(to_native(detail))
             )
 
-#       if len(response) > 0:
-#           self.order_by = self._sort_key(response[0])
-#       if self.order_by is not None:
-#           self.module.result['record'] = sorted(
-#               response,
-#               key=lambda x: x[self.order_by],
-#               reverse=self.reverse)
-#       else:
-#           self.module.result['record'] = response.all()
-        self.module.result['record'] = response.all()
+        rlist = response.all()
+        if len(rlist) > 0:
+            self.order_by = self._sort_key(rlist[0])
+        if self.order_by is not None:
+            self.module.result['record'] = sorted(
+                rlist,
+                key=lambda x: x[self.order_by],
+                reverse=self.reverse)
+        else:
+            self.module.result['record'] = rlist
 
         self.module.exit()
 

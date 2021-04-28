@@ -329,7 +329,7 @@ class SnowRecordFind(object):
         if self.order_by in e.keys():
             return self.order_by
         else:
-            prog = re.compile(self.order_by)
+            prog = re.compile(r'.*' + self.order_by + r'.*')
             for key in e.keys():
                 if prog.match(key):
                     return key

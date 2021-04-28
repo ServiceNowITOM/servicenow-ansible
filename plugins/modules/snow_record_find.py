@@ -326,14 +326,14 @@ class SnowRecordFind(object):
             )
 
     def _sort_key(self, e):
-      if self.order_by in e.keys():
-        return self.order_by
-      else:
-        prog = re.compile(self.order_by)
-        for key in e.keys():
-          if prog.match(key):
-            return key
-        return None
+        if self.order_by in e.keys():
+            return self.order_by
+        else:
+            prog = re.compile(self.order_by)
+            for key in e.keys():
+                if prog.match(key):
+                    return key
+            return None
         
 
     def execute(self):
@@ -347,7 +347,8 @@ class SnowRecordFind(object):
                 msg='Failed to find record: {0}'.format(to_native(detail))
             )
 
-        self.order_by = self._sort_key(response[0])
+        if len(response) > 0:
+            self.order_by = self._sort_key(response[0])
         if self.order_by is not None:
             self.module.result['record'] = sorted(
                 response,

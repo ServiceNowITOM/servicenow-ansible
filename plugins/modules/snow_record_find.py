@@ -243,7 +243,7 @@ class SnowRecordFind(object):
         self.reverse = False
         if self.order_by is not None:
             if self.order_by[0] == '-':
-                self.reverse = True 
+                self.reverse = True
             if self.order_by[0] in ['-','+']:
                 self.order_by = self.order_by[1:]
 
@@ -334,7 +334,6 @@ class SnowRecordFind(object):
                 if prog.match(key):
                     return key
             return None
-        
 
     def execute(self):
         try:

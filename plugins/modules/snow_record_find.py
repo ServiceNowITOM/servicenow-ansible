@@ -244,7 +244,7 @@ class SnowRecordFind(object):
         if self.order_by is not None:
             if self.order_by[0] == '-':
                 self.reverse = True
-            if self.order_by[0] in ['-','+']:
+            if self.order_by[0] in ['-', '+']:
                 self.order_by = self.order_by[1:]
 
         # Define table parameters

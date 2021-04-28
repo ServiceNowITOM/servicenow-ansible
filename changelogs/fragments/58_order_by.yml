@@ -1,0 +1,5 @@
+---
+major_changes:
+- if client_id specified without defining auth defaults to OAuth authentication
+bugfixes:
+- order_by again working by locally sorting return list of records

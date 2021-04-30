@@ -218,12 +218,13 @@ from ansible.module_utils._text import to_native
 try:
     # This is being managed by ServiceNowModule
     import pysnow
+    import re
     import requests
 except ImportError:
     pass
 
 
-class BuildQuery(object):
+class SnowRecordFind(object):
     '''
     This is a BuildQuery manipulation class that constructs
     a pysnow.QueryBuilder object based on data input.
@@ -231,6 +232,31 @@ class BuildQuery(object):
 
     def __init__(self, module):
         self.module = module
+
+        # Define query parameters
+        self.data = module.params['query']
+        self.max_records = self.module.params['max_records']
+        self.order_by = self.module.params['order_by']
+        self.return_fields = self.module.params['return_fields']
+
+        # Define sort criteria
+        self.reverse = False
+        if self.order_by is not None:
+            if self.order_by[0] == '-':
+                self.reverse = True
+            if self.order_by[0] in ['-', '+']:
+                self.order_by = self.order_by[1:]
+
+        # Define table parameters
+        self.table = module.connection.resource(
+            api_path='/table/' + self.module.params['table'])
+        self.table.parameters.display_value = self.module.params['display_value']
+        self.table.parameters.exclude_reference_link = self.module.params[
+            'exclude_reference_link']
+        self.table.parameters.suppress_pagination_header = self.module.params[
+            'suppress_pagination_header']
+
+        # Define query expression operators
         self.logic_operators = ["AND", "OR", "NQ"]
         self.condition_operator = {
             'equals': self._condition_closure,
@@ -245,17 +271,20 @@ class BuildQuery(object):
         self.accepted_cond_ops = self.condition_operator.keys()
         self.append_operator = False
         self.simple_query = True
-        self.data = module.params['query']
+
+        # Build the query
+        self.query = pysnow.QueryBuilder()
+        self._iterate_operators(self.data)
 
     def _condition_closure(self, cond, query_field, query_value):
-        self.qb.field(query_field)
-        getattr(self.qb, cond)(query_value)
+        self.query.field(query_field)
+        getattr(self.query, cond)(query_value)
 
     def _iterate_fields(self, data, logic_op, cond_op):
         if isinstance(data, dict):
             for query_field, query_value in data.items():
                 if self.append_operator:
-                    getattr(self.qb, logic_op)()
+                    getattr(self.query, logic_op)()
                 self.condition_operator[cond_op](
                     cond_op, query_field, query_value)
                 self.append_operator = True
@@ -296,10 +325,39 @@ class BuildQuery(object):
                 )
             )
 
-    def build_query(self):
-        self.qb = pysnow.QueryBuilder()
-        self._iterate_operators(self.data)
-        return (self.qb)
+    def _sort_key(self, e):
+        if self.order_by in e.keys():
+            return self.order_by
+        else:
+            prog = re.compile(r'.*' + self.order_by + r'.*')
+            for key in e.keys():
+                if prog.match(key):
+                    return key
+            return None
+
+    def execute(self):
+        try:
+            response = self.table.get(
+                query=self.query,
+                limit=self.max_records,
+                fields=self.return_fields)
+        except Exception as detail:
+            self.module.fail(
+                msg='Failed to find record: {0}'.format(to_native(detail))
+            )
+
+        rlist = response.all()
+        if len(rlist) > 0:
+            self.order_by = self._sort_key(rlist[0])
+        if self.order_by is not None:
+            self.module.result['record'] = sorted(
+                rlist,
+                key=lambda x: x[self.order_by],
+                reverse=self.reverse)
+        else:
+            self.module.result['record'] = rlist
+
+        self.module.exit()
 
 
 def main():
@@ -347,37 +405,8 @@ def main():
         supports_check_mode=True,
     )
 
-    params = module.params
-    table = params['table']
-    query = params['query']
-    max_records = params['max_records']
-    display_value = params['display_value']
-    exclude_reference_link = params['exclude_reference_link']
-    suppress_pagination_header = params['suppress_pagination_header']
-    return_fields = params['return_fields']
-
-    # Do the lookup
-    try:
-        bq = BuildQuery(module)
-        qb = bq.build_query()
-        table = module.connection.resource(api_path='/table/' + table)
-
-        table.parameters.display_value = display_value
-        table.parameters.exclude_reference_link = exclude_reference_link
-        table.parameters.suppress_pagination_header = suppress_pagination_header
-
-        response = table.get(
-            query=qb,
-            limit=max_records,
-            fields=return_fields)
-    except Exception as detail:
-        module.fail(
-            msg='Failed to find record: {0}'.format(to_native(detail))
-        )
-
-    module.result['record'] = response.all()
-
-    module.exit()
+    query = SnowRecordFind(module)
+    query.execute()
 
 
 if __name__ == '__main__':

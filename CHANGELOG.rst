@@ -5,6 +5,18 @@ Servicenow.Servicenow Release Notes
 .. contents:: Topics
 
 
+
+v1.0.6
+======
+
+Bugfixes
+--------
+
+- Resolves Issues #58, #57, #51 and makes auth backwards compatible by defaulting to OAuth if client_id is present without specifying auth. 
+- Order_by is implemented client-side to provide proper sorting as previously documented.
+
+=======
+
 v1.0.5
 ======
 

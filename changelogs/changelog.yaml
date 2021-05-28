@@ -40,3 +40,11 @@ releases:
     fragments:
     - 27_openid.yml
     release_date: '2021-04-02'
+  1.0.6:
+    changes:
+      bugfixes:
+      - order_by again working by locally sorting return list of records
+      - makes auth backwards compatible by defaulting to OAuth if client_id is present without specifying auth
+    fragments:
+    - 58_order_by.yml
+    release_date: '2021-05-26'

@@ -169,8 +169,6 @@ try:
 except ImportError:
     HAS_REQUESTS = False
 
-import os
-
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable, to_safe_group_name
 
@@ -265,9 +263,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         selection = self.get_option('selection_order')
         fields = self.get_option('fields')
         table = self.get_option('table')
-        filter_results = os.environ.get('SN_FILTER_RESULTS')
-        if not filter_results:
-            filter_results = self.get_option('filter_results')
+        filter_results = self.get_option('filter_results')
 
         options = "?sysparm_exclude_reference_link=true&sysparm_display_value=true"
 

@@ -80,6 +80,8 @@ DOCUMENTATION = r'''
             description: Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries.
             type: string
             default: ''
+            env:
+              - name: SN_FILTER_RESULTS
         proxy:
             description: Proxy server to use for requests to ServiceNow.
             type: string

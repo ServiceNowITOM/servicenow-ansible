@@ -17,8 +17,6 @@ Minor Changes
 -------------
 
 - add environment var SN_FILTER_RESULTS to inventory plugin
-=======
-
 
 v1.0.6
 ======

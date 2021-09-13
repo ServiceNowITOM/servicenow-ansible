@@ -5,6 +5,32 @@ Servicenow.Servicenow Release Notes
 .. contents:: Topics
 
 
+v1.0.7
+======
+
+Release Summary
+---------------
+
+DEPRECATED - This collection is deprecated in favor of servicenow.itsm.
+
+Major Changes
+-------------
+
+- auth field now required for anything other than Basic authentication, but, if client_id specified without auth, defaults to OAuth
+- refactored client to inherit from AnsibleModule
+- supports OpenID Connect authentication protocol
+- supports bearer tokens for authentication
+
+Minor Changes
+-------------
+
+- add environment var SN_FILTER_RESULTS to inventory plugin
+- standardized invocation output
+
+Bugfixes
+--------
+
+- order_by again working by locally sorting return list of records
 
 v1.0.6
 ======
@@ -12,10 +38,8 @@ v1.0.6
 Bugfixes
 --------
 
-- Resolves Issues #58, #57, #51 and makes auth backwards compatible by defaulting to OAuth if client_id is present without specifying auth. 
-- Order_by is implemented client-side to provide proper sorting as previously documented.
-
-=======
+- makes auth backwards compatible by defaulting to OAuth if client_id is present without specifying auth
+- order_by again working by locally sorting return list of records
 
 v1.0.5
 ======

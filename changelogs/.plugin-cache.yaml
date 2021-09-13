@@ -22,7 +22,8 @@ plugins:
       name: snow_record_find
       namespace: ''
       version_added: null
+  netconf: {}
   shell: {}
   strategy: {}
   vars: {}
-version: 1.0.6
+version: 1.0.7

@@ -13,24 +13,10 @@ Release Summary
 
 DEPRECATED - This collection is deprecated in favor of servicenow.itsm.
 
-Major Changes
--------------
-
-- auth field now required for anything other than Basic authentication, but, if client_id specified without auth, defaults to OAuth
-- refactored client to inherit from AnsibleModule
-- supports OpenID Connect authentication protocol
-- supports bearer tokens for authentication
-
 Minor Changes
 -------------
 
 - add environment var SN_FILTER_RESULTS to inventory plugin
-- standardized invocation output
-
-Bugfixes
---------
-
-- order_by again working by locally sorting return list of records
 
 v1.0.6
 ======

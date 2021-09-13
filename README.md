@@ -1,5 +1,10 @@
 ![CI](https://github.com/ServiceNowITOM/servicenow-ansible/workflows/CI/badge.svg)
 
+## **[DEPRECATED]**
+This collection is superseded by [servicenow.itsm](https://galaxy.ansible.com/servicenow/itsm). Please open any new issues, pull requests, and feature requests to the new [repository](https://github.com/ansible-collections/servicenow.itsm). Thank you to all that contributed and helped to make this collection a success.
+
+--- 
+
 # Ansible Collection for ServiceNow
 This collection provides a series of Ansible modules, roles, and plugins for interacting with [ServiceNow](https://servicenow.com)
 

@@ -107,6 +107,6 @@ options:
       required: false
       type: dict
 deprecated:
-  removed_in: "6"
+  removed_in: "6.0.0"
   why: This collection is deprecated in favor of servicenow.itsm
 '''

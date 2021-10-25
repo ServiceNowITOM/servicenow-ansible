@@ -5,13 +5,13 @@ plugin_routing:
     now:
       tombstone:
         removal_version: "6.0.0"
-        warning_text: Please migrate to inventory provided by servicenow.itom collection
+        warning_text: Please migrate to inventory provided by servicenow.itsm collection
   modules:
     snow_record:
       tombstone:
         removal_version: "6.0.0"
-        warning_text: Please migrate to modules provided by servicenow.itom collection
+        warning_text: Please migrate to modules provided by servicenow.itsm collection
     snow_record_find:
       tombstone:
         removal_version: "6.0.0"
-        warning_text: Please migrate to inventory provided by servicenow.itom collection
+        warning_text: Please migrate to modules provided by servicenow.itsm collection

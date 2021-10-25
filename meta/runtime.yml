@@ -1,2 +1,17 @@
 ---
 requires_ansible: '>=2.9.10'
+plugin_routing:
+  inventory:
+    now:
+      tombstone:
+        removal_version: "6.0.0"
+        warning_text: Please migrate to inventory provided by servicenow.itom collection
+  modules:
+    snow_record:
+      tombstone:
+        removal_version: "6.0.0"
+        warning_text: Please migrate to modules provided by servicenow.itom collection
+    snow_record_find:
+      tombstone:
+        removal_version: "6.0.0"
+        warning_text: Please migrate to inventory provided by servicenow.itom collection

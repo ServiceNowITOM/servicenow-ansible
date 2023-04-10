@@ -2,10 +2,10 @@
 - hosts: localhost
   gather_facts: no
   vars:
-    sn_instance: dev89007
+    sn_instance: 
     login: &login
-      username: admin
-      password: ha53wiaYCKDX
+      username: 
+      password: 
 
   tasks:
     - set_fact:

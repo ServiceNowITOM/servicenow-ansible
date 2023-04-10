@@ -43,8 +43,19 @@ releases:
   1.0.6:
     changes:
       bugfixes:
+      - makes auth backwards compatible by defaulting to OAuth if client_id is present
+        without specifying auth
       - order_by again working by locally sorting return list of records
-      - makes auth backwards compatible by defaulting to OAuth if client_id is present without specifying auth
     fragments:
     - 58_order_by.yml
     release_date: '2021-05-26'
+  1.0.7:
+    changes:
+      deprecated_features: This collection is deprecated in favor of servicenow.itsm
+      minor_changes:
+      - add environment var SN_FILTER_RESULTS to inventory plugin
+      release_summary: DEPRECATED - This collection is deprecated in favor of servicenow.itsm.
+    fragments:
+    - 64_filter_env_vars.yml
+    - 69_deprecation.yml
+    release_date: '2021-09-13'

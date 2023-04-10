@@ -1,5 +1,5 @@
 plugin: servicenow.servicenow.now
-instance: demo.service-now.com
-username: admin
-password: password
+instance: 
+username: 
+password: 
 cache: True

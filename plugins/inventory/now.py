@@ -66,7 +66,10 @@ DOCUMENTATION = r'''
             type: string
             default: cmdb_ci_server
         fields:
-            description: Comma seperated string providing additional table columns to add as host vars to each inventory host.
+            description:
+            - Comma seperated string providing additional table columns to add as host vars to each inventory host.
+            - Related table fields are valid.  Usual period separator is changed to underscore.
+            - e.g. sn_model_id.model_name -> sn_model_id_model_name
             type: list
             default: 'ip_address,fqdn,host_name,sys_class_name,name'
         selection_order:
@@ -77,6 +80,8 @@ DOCUMENTATION = r'''
             description: Filter results with sysparm_query encoded query string syntax. Complete list of operators available for filters and queries.
             type: string
             default: ''
+            env:
+              - name: SN_FILTER_RESULTS
         proxy:
             description: Proxy server to use for requests to ServiceNow.
             type: string
@@ -137,6 +142,19 @@ compose:
 keyed_groups:
   - key: sn_tags | lower
     prefix: 'tag'
+
+# Use related table field
+plugin: servicenow.servicenow.now
+instance: dev89007
+username: admin
+password: password
+table: cmdb_ci_netgear
+selection_order: fqdn
+fields: [name,host_name,fqdn,model_id.model_number]
+filter_results: operational_status=1^fqdnISNOTEMPTY^manufacturerSTARTSWITHCisco
+keyed_groups:
+  - key: sn_model_id_model_number | lower
+    prefix: 'model'
 '''
 
 try:
@@ -286,7 +304,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             # set variables for host
             for k in record.keys():
-                self.inventory.set_variable(host_name, 'sn_%s' % k, record[k])
+                k2 = k.replace('.', '_')
+                self.inventory.set_variable(host_name, 'sn_%s' % k2, record[k])
 
             # add relationship based groups
             if enhanced and enhanced_groups:

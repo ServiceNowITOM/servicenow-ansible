@@ -1,7 +1,7 @@
 ---
 plugin: servicenow.servicenow.now
-host: dev95176.service-now.com
-username: admin
+host: 
+username: 
 password: 
 selection_order: name
 fields:
